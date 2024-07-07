@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('player_id')->constrained()->onDelete('cascade'); // Relación con el jugador
             $table->foreignId('team_id')->constrained()->onDelete('cascade'); // Relación con el equipo
-            $table->foreignId('tournament_id')->constrained()->onDelete('cascade'); // Relación con el torneo
-            $table->timestamps();
-            
+            $table->foreignId('tournament_id')->constrained()->onDelete('cascade'); // Relación con el torneo            
             // Garantiza que un jugador no pueda jugar para diferentes equipos en el mismo torneo
             $table->unique(['player_id', 'tournament_id']);
             $table->timestamps();
