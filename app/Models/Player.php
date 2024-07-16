@@ -15,14 +15,19 @@ class Player extends Model
         'number',
         'birth_date',
         'nationality',
-        'photo'
+        'photo',
+        'team_id',
+        'user_id'
     ];
 
-    public function teams()
+    public function team()
     {
-        return $this->belongsToMany(Team::class, 'player_team_tournament')
-                    ->withPivot('tournament_id')
-                    ->withTimestamps();
+        return $this->belongsTo(Team::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function tournaments()

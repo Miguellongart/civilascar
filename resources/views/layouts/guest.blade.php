@@ -29,7 +29,9 @@
         <link rel="stylesheet" href="{{asset("/front/css/style.css")}}">
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+        {{-- Custom Stylesheets (post AdminLTE) --}}
+        @stack('guest_css')
     </head>
     <body>
         @include('front.components.header')
@@ -53,6 +55,7 @@
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
         <script src="{{asset("/front/js/google-map.js")}}"></script>
         <script src="{{asset("/front/js/main.js")}}"></script>
-          
+        {{-- Custom Scripts --}}
+        @stack('guest_js')
     </body>
 </html>

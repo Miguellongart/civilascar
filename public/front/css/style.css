@@ -7797,9 +7797,17 @@ h1, h2, h3, h4, h5,
       .ftco-section-3 .img-2 {
         height: 200px;
         margin-bottom: 40px; } }
-
-.volunteer h3 {
-  color: #fff; }
+  .volunteer{
+    width: 40%;
+  }
+  .volunteer h3 {
+    color: #212529; 
+  }
+  @media (max-width: 767.98px){
+    .volunteer{
+      width: 75%;
+    }
+  }
 
 .volunter-form .form-control {
   border: 2px solid rgba(255, 255, 255, 0.7);

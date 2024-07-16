@@ -21,20 +21,23 @@ class Tournament extends Model
         'status',
         'rules',
         'prizes',
-        'logo'
+        'logo',
+        'limit_teams'
     ];
 
     public function teams()
     {
-        return $this->belongsToMany(Team::class, 'player_team_tournament')
-                    ->withPivot('player_id')
+        return $this->belongsToMany(Team::class, 'team_tournament')
                     ->withTimestamps();
     }
 
-    public function players()
+    public function fixtures()
     {
-        return $this->belongsToMany(Player::class, 'player_team_tournament')
-                    ->withPivot('team_id')
-                    ->withTimestamps();
+        return $this->hasMany(Fixture::class);
+    }
+
+    public function positionTables()
+    {
+        return $this->hasMany(PositionTable::class);
     }
 }

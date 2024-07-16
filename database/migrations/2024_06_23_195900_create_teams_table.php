@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nombre del equipo
+            $table->string('name')->unique(); // Nombre del equipo
+            $table->string('slug')->unique();
             $table->string('coach')->nullable(); // Nombre del entrenador
-            $table->date('founded')->nullable(); // Fecha de fundación del equipo
             $table->string('logo')->nullable(); // Ruta al logotipo del equipo
             $table->text('description')->nullable(); // Descripción del equipo
             $table->string('home_stadium')->nullable(); // Estadio local del equipo
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

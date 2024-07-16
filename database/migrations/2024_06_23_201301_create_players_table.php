@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('players', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('team_id')->constrained()->onDelete('cascade'); // Relación con el equipo
-            $table->string('name'); // Nombre del jugador
-            $table->string('position'); // Posición del jugador
-            $table->integer('number'); // Número de camiseta
-            $table->date('birth_date')->nullable(); // Fecha de nacimiento
-            $table->string('nationality')->nullable(); // Nacionalidad
+            $table->string('name')->nullable(); // Nombre del jugador
+            $table->string('position')->nullable();// Posición del jugador
+            $table->integer('number')->nullable(); // Número de camiseta
             $table->string('photo')->nullable(); // Ruta de la foto del jugador
             $table->timestamps();
         });

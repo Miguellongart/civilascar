@@ -14,9 +14,9 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
-    'title_prefix' => '',
-    'title_postfix' => '',
+    'title' => 'Civil Ascar',
+    'title_prefix' => 'CA',
+    'title_postfix' => 'CA',
 
     /*
     |--------------------------------------------------------------------------
@@ -334,6 +334,30 @@ return [
             'icon' => 'fas fa-fw fa-lock',
         ],
         [
+            'text' => 'User',
+            'icon' => 'fas fa-users',
+            'submenu' => [
+                [
+                    'text' => 'Listado De usuarios',
+                    'route' => 'admin.user.index',
+                ],
+                [
+                    'text' => 'level_one',
+                    'url' => '#',
+                ],
+            ],
+        ],
+        [
+            'text' => 'Torneos',
+            'icon' => 'fas fa-users',
+            'route' => 'admin.tournament.index',
+        ],
+        [
+            'text' => 'Equipos',
+            'icon' => 'fas fa-users',
+            'route' => 'admin.team.index',
+        ],
+        [
             'text' => 'multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [
@@ -429,17 +453,17 @@ return [
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js',
                 ],
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css',
                 ],
             ],
@@ -491,6 +515,16 @@ return [
                     'type' => 'js',
                     'asset' => false,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js',
+                ],
+            ],
+        ],
+        'BsCustomFileInput' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => 'vendor/bs-custom-file-input/bs-custom-file-input.min.js',
                 ],
             ],
         ],

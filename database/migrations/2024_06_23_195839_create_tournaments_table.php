@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tournaments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique();
             $table->enum('type', ['league', 'cup', 'quadrangular'])->default('league');
             $table->integer('max_teams');
             $table->integer('min_teams');
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->text('rules')->nullable();
             $table->string('prizes')->nullable();
             $table->string('logo')->nullable();
+            $table->string('limit_teams')->nullable();
             $table->timestamps();
         });
     }
