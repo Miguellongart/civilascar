@@ -39,9 +39,22 @@ class TournamentSeeder extends Seeder
 
         // Nombres de los equipos
         $teamNames = [
-            'Pago Linea', 'Red9', 'Garaje Online', 'FC Parcelona', 'Africa United', 
-            'Medicina Predadora', 'United FC', 'Taguibeds', 'Locos x el Maiz', 'Flash Coin',
-            'THE NEW', 'Calm Infinity', 'Del Barrio FC', 'ACD Sentimiento Peruano'
+            'VENCEDORES DE AYACUCHO',
+            'CALM INFINITY',
+            'FLASH COIN',
+            'PAGO LINEA',
+            'LOS DEL BARRIO',
+            'THE NEW',
+            'ASOC. SENTIMIENTO PERUANO',
+            'TAGUIBEDS',
+            'LOCOS X EL MAIZ',
+            'CRIPTO TIME',
+            'PARCELONA FC',
+            'MEDICINA PREDADORA',
+            'UNITED FC',
+            'AFRICA UNITED',
+            'GARAGE ONLINE',
+            'RED9',
         ];
 
         // Crear equipos y asignarlos al torneo
