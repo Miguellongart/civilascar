@@ -77,9 +77,8 @@ class FrontController extends Controller
             'team_id' => 'required|exists:teams,id',
             'tournament_id' => 'required|exists:tournaments,id',
         ]);
-    
         $user = User::where('email', $request->email)->orWhere('dni', $request->dni)->first();
-    
+
         if ($user) {
             $player = Player::where('user_id', $user->id)->where('team_id', $request->team_id)->first();
             if ($player) {
@@ -93,6 +92,11 @@ class FrontController extends Controller
                 }
                 $player = Player::create($playerData);
                 $player->tournaments()->attach($request->tournament_id, ['team_id' => $request->team_id]);
+    
+                // Asignar el rol 'player' al usuario
+                if (!$user->hasRole('player')) {
+                    $user->assignRole('player');
+                }
     
                 return redirect()->route('front.inscription')->with('success', 'Usuario existente asociado exitosamente a un nuevo equipo en el torneo.');
             }
@@ -109,6 +113,9 @@ class FrontController extends Controller
             }
             $player = Player::create($playerData);
             $player->tournaments()->attach($request->tournament_id, ['team_id' => $request->team_id]);
+    
+            // Asignar el rol 'player' al usuario
+            $user->assignRole('player');
     
             return redirect()->route('front.inscription')->with('success', 'Nuevo usuario registrado y equipo inscrito exitosamente en el torneo.');
         }
