@@ -13,7 +13,7 @@
                 </div>
 
                 <div class="row mb-5">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
                         {{-- <form method="GET" action="{{ route('front.tournament.index') }}" class="mb-4">
                             <div class="form-group">
                                 <label for="filter_date">Filtrar por fecha</label>
@@ -21,6 +21,9 @@
                             </div>
                             <button type="submit" class="btn btn-primary">Filtrar</button>
                         </form> --}}
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{route('front.inscription')}}" class="btn btn-white px-3 py-2 mt-2">Registrar Jugador</a>
                     </div>
                 </div>
 
