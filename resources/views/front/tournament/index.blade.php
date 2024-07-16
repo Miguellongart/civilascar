@@ -24,21 +24,21 @@
                     </div>
                 </div>
 
-                <div class="row mb-5" style="background-color: brown">
+                <div class="row mb-5" style="background-color: ">
                     <div class="col-md-6">
                         <h4>Tabla de Posiciones</h4>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Equipo</th>
-                                    <th>Jugados</th>
-                                    <th>Ganados</th>
-                                    <th>Empatados</th>
-                                    <th>Perdidos</th>
-                                    <th>Goles a Favor</th>
-                                    <th>Goles en Contra</th>
-                                    <th>Diferencia de Goles</th>
-                                    <th>Puntos</th>
+                                    <th>PJ</th>
+                                    <th>PG</th>
+                                    <th>PE</th>
+                                    <th>PP</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>DG</th>
+                                    <th>PT</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,28 +59,28 @@
                         </table>
                     </div>
 
-                    <div class="col-md-6"  style="background-color: yellow">
+                    <div class="col-md-6"  style="background-color: ">
                         <h4>Fixtures</h4>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
-                                    <th>Equipo Local</th>
-                                    <th>Marcador Local</th>
-                                    <th>Equipo Visitante</th>
-                                    <th>Marcador Visitante</th>
+                                    <th>EL</th>
+                                    <th>GOLES</th>
+                                    <th>EV</th>
+                                    <th>GOLES</th>
                                     <th>Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($fixtures as $fixture)
                                     <tr>
-                                        <td>{{ $fixture->match_date }}</td>
-                                        <td>{{ $fixture->homeTeam->name }}</td>
-                                        <td>{{ $fixture->home_team_score ?? '-' }}</td>
-                                        <td>{{ $fixture->awayTeam->name }}</td>
-                                        <td>{{ $fixture->away_team_score ?? '-' }}</td>
-                                        <td>
+                                        <td style="font-size: 12px">{{ \Carbon\Carbon::parse($fixture->match_date)->format('d/m/Y H:i') }}</td>
+                                        <td style="font-size: 12px">{{ $fixture->homeTeam->name }}</td>
+                                        <td style="font-size: 12px">{{ $fixture->home_team_score ?? '0' }}</td>
+                                        <td style="font-size: 12px">{{ $fixture->awayTeam->name }}</td>
+                                        <td style="font-size: 12px">{{ $fixture->away_team_score ?? '0' }}</td>
+                                        <td style="font-size: 12px">
                                             @if ($fixture->status == 'completed')
                                                 Jugado
                                             @else
