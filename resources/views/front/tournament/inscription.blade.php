@@ -57,7 +57,7 @@
                             <input type="text" name="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                         </div>
                         <div class="form-group">
-                            <label for="number">Número</label>
+                            <label for="number">Número Camiseta</label>
                             <input type="number" name="number" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                         </div>
                         <div class="form-group">
