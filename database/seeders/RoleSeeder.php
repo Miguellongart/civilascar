@@ -102,19 +102,19 @@ class RoleSeeder extends Seeder
 
         /*equipo*/
         Permission::updateOrCreate(
-            ['name' => 'admin.teams.index'], 
+            ['name' => 'admin.team.index'], 
             ['description' => 'Listado Equipos'])->syncRoles([$admin, $teacher, $player, $customer]);
         Permission::updateOrCreate(
-            ['name' => 'admin.teams.create'], 
+            ['name' => 'admin.team.create'], 
             ['description' => 'Crear Equipo'])->syncRoles([$admin]);
         Permission::updateOrCreate(
-            ['name' => 'admin.teams.edit'], 
+            ['name' => 'admin.team.edit'], 
             ['description' => 'Editar Equipo'])->syncRoles([$admin]);
         Permission::updateOrCreate(
-            ['name' => 'admin.teams.destroy'], 
+            ['name' => 'admin.team.destroy'], 
             ['description' => 'Eliminar Equipo'])->syncRoles([$admin]);
         Permission::updateOrCreate(
-            ['name' => 'admin.teams.Show'], 
+            ['name' => 'admin.team.Show'], 
             ['description' => 'Ver Equipo'])->syncRoles([$admin, $teacher, $player, $customer]);
 
     }

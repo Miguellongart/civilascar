@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class TeamController extends Controller
 {
@@ -28,6 +31,10 @@ class TeamController extends Controller
         $config = [
             'data' => $teams->map(function($team) {
 
+                $btnEdit = '';
+                $btnDelete = '';
+                $btnDetails = '';
+
                 if (auth()->user()->can('admin.team.edit')) {
                     $btnEdit = '<a href="' . route('admin.team.edit', $team) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
                                     <i class="fa fa-lg fa-fw fa-pen"></i>
@@ -42,9 +49,9 @@ class TeamController extends Controller
                             </form>';
                 }
                 if (auth()->user()->can('admin.team.show')) {
-                $btnDetails = '<a href="' . route('admin.team.show', $team) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
-                                <i class="fa fa-lg fa-fw fa-eye"></i>
-                            </a>';
+                    $btnDetails = '<a href="' . route('admin.team.show', $team) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+                                    <i class="fa fa-lg fa-fw fa-eye"></i>
+                                </a>';
                 }
 
                 $logo = $team->logo ? '<img src="' . asset('storage/' . $team->logo) . '" alt="Logo" height="50">' : 'No logo';
@@ -97,15 +104,20 @@ class TeamController extends Controller
         ]);
     
         $data = $request->all();
-    
+
         // Manejar la carga del archivo de logo
         if ($request->hasFile('logo')) {
-            // Almacenar el archivo en la carpeta 'teams' dentro del sistema de archivos 'public'
+            // Almacenar el archivo en la carpeta 'teams/logos' dentro del sistema de archivos 'public'
             $data['logo'] = $request->file('logo')->store('teams/logos', 'public');
         }
-    
+
+        // Generar slug si no existe
+        if (!isset($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+
         Team::create($data);
-    
+
         return redirect()->route('admin.team.index')->with('success', 'Equipo creado exitosamente.');
     }
     
@@ -136,13 +148,13 @@ class TeamController extends Controller
         return view('admin.team.edit', compact('team', 'subtitle', 'content_header_title', 'content_header_subtitle', 'users'));
     }
 
-    /**
+   /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Team $team)
     {
+        // Validación de datos
         $request->validate([
-            'name' => 'required|string|max:255|unique:teams,name,' . $team->id,
             'coach' => 'nullable|string|max:255',
             'logo' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
@@ -150,20 +162,42 @@ class TeamController extends Controller
             'user_id' => 'nullable|exists:users,id',
         ]);
 
+
+        // Obtener todos los datos del request excepto el logo
         $data = $request->all();
-        
+
         // Manejar la carga del archivo de logo
         if ($request->hasFile('logo')) {
-            // Almacenar el archivo en la carpeta 'teams' dentro del sistema de archivos 'public'
-            $data['logo'] = $request->file('logo')->store('teams/logos', 'public');
+            // Almacenar el archivo en la carpeta 'teams/logos' dentro del sistema de archivos 'public'
+            $logoPath = $request->file('logo')->store('teams/logos', 'public');
+            $data['logo'] = $logoPath;
+
             // Eliminar el logo antiguo si existe
             if ($team->logo) {
                 Storage::disk('public')->delete($team->logo);
             }
         }
+        
+        // Generar slug si no existe
+        if (!isset($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+        // Actualizar los datos del equipo
+        if($data['name'] != $team->name ){
+            $team->name = $data['name'];
+            $team->slug = $data['slug'];
+        }
+        $team->coach = $data['coach'] ?? $team->coach;
+        $team->description = $data['description'] ?? $team->description;
+        $team->home_stadium = $data['home_stadium'] ?? $team->home_stadium;
+        $team->user_id = $data['user_id'] ?? $team->user_id;
+        if (isset($data['logo'])) {
+            $team->logo = $data['logo'];
+        }
 
-        $team->update($data);
+        $team->save();
 
+        // Redireccionar con un mensaje de éxito
         return redirect()->route('admin.team.index')->with('success', 'Equipo actualizado exitosamente.');
     }
 

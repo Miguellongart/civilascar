@@ -15,7 +15,8 @@ class Team extends Model
         'logo',
         'description',
         'home_stadium',
-        'user_id'
+        'user_id',
+        'slug'
     ];
 
     public function user()
