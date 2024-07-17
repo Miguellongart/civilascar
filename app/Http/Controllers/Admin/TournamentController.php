@@ -39,14 +39,14 @@ class TournamentController extends Controller
                                 </a>';
                 }
 
-                if (auth()->user()->can('admin.tournamen.destroy')) {
-                    $btnDelete = '<form method="POST" action="' . route('admin.tournament.destroy', $tournament) . '" style="display:inline;">
-                                    ' . csrf_field() . method_field('DELETE') . '
-                                    <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
-                                        <i class="fa fa-lg fa-fw fa-trash"></i>
-                                    </button>
-                                </form>';
-                }
+                // if (auth()->user()->can('admin.tournamen.destroy')) {
+                //     $btnDelete = '<form method="POST" action="' . route('admin.tournament.destroy', $tournament) . '" style="display:inline;">
+                //                     ' . csrf_field() . method_field('DELETE') . '
+                //                     <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
+                //                         <i class="fa fa-lg fa-fw fa-trash"></i>
+                //                     </button>
+                //                 </form>';
+                // }
                 
                     $btnDetails = '<a href="' . route('admin.tournament.listTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
