@@ -43,6 +43,9 @@ class RoleSeeder extends Seeder
         Permission::updateOrCreate(
             ['name' => 'admin.user.destroy'], 
             ['description' => 'Eliminar usuario'])->syncRoles([$admin]);
+        Permission::updateOrCreate(
+            ['name' => 'admin.user.show'], 
+            ['description' => 'Ver usuario'])->syncRoles([$admin, $teacher, $player, $customer]);
 
         /*roles*/
         Permission::updateOrCreate(
@@ -57,7 +60,10 @@ class RoleSeeder extends Seeder
         Permission::updateOrCreate(
             ['name' => 'admin.rol.destroy'], 
             ['description' => 'Eliminar rol'])->syncRoles([$admin]);
-            
+        Permission::updateOrCreate(
+            ['name' => 'admin.rol.show'], 
+            ['description' => 'Eliminar ver'])->syncRoles([$admin, $teacher, $player, $customer]);
+
         /*permisos*/
         Permission::updateOrCreate(
             ['name' => 'admin.permissions.index'], 
@@ -71,6 +77,9 @@ class RoleSeeder extends Seeder
         Permission::updateOrCreate(
             ['name' => 'admin.permissions.destroy'], 
             ['description' => 'Eliminar permiso'])->syncRoles([$admin]);
+        Permission::updateOrCreate(
+            ['name' => 'admin.permissions.show'], 
+            ['description' => 'Ver permiso'])->syncRoles([$admin, $teacher, $player, $customer]);
 
 
         /*tournamen*/
@@ -86,6 +95,9 @@ class RoleSeeder extends Seeder
         Permission::updateOrCreate(
             ['name' => 'admin.tournamen.destroy'], 
             ['description' => 'Eliminar Torneo'])->syncRoles([$admin]);
+        Permission::updateOrCreate(
+            ['name' => 'admin.tournamen.show'], 
+            ['description' => 'Ver Torneo'])->syncRoles([$admin, $teacher, $player, $customer]);
 
 
         /*equipo*/
@@ -101,6 +113,9 @@ class RoleSeeder extends Seeder
         Permission::updateOrCreate(
             ['name' => 'admin.teams.destroy'], 
             ['description' => 'Eliminar Equipo'])->syncRoles([$admin]);
+        Permission::updateOrCreate(
+            ['name' => 'admin.teams.Show'], 
+            ['description' => 'Ver Equipo'])->syncRoles([$admin, $teacher, $player, $customer]);
 
     }
 }

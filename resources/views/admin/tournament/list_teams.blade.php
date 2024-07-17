@@ -19,12 +19,16 @@
                         <td>{{ $team->coach }}</td>
                         <td>{{ $team->home_stadium }}</td>
                         <td>
-                            <a href="{{ route('admin.team.show', $team->id) }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Ver Detalles">
-                                <i class="fa fa-lg fa-fw fa-eye"></i>
-                            </a>
-                            <a href="{{ route('admin.team.edit', $team->id) }}" class="btn btn-xs btn-default text-primary mx-1 shadow" title="Editar">
-                                <i class="fa fa-lg fa-fw fa-pen"></i>
-                            </a>
+                            @canany('admin.team.show')
+                                <a href="{{ route('admin.team.show', $team->id) }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Ver Detalles">
+                                    <i class="fa fa-lg fa-fw fa-eye"></i>
+                                </a>
+                            @endcanany
+                            @canany('admin.team.edit')
+                                <a href="{{ route('admin.team.edit', $team->id) }}" class="btn btn-xs btn-default text-primary mx-1 shadow" title="Editar">
+                                    <i class="fa fa-lg fa-fw fa-pen"></i>
+                                </a>
+                            @endcanany
                         </td>
                     </tr>
                 @endforeach

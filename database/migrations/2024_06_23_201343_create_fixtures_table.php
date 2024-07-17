@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('fixtures', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tournament_id')->constrained()->onDelete('cascade'); // Relación con el torneo
+            $table->integer('round');
             $table->foreignId('home_team_id')->constrained('teams')->onDelete('cascade'); // Equipo local
             $table->foreignId('away_team_id')->constrained('teams')->onDelete('cascade'); // Equipo visitante
             $table->dateTime('match_date'); // Fecha y hora del partido

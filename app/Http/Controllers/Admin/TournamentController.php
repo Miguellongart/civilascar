@@ -28,21 +28,36 @@ class TournamentController extends Controller
 
         $config = [
             'data' => $tournaments->map(function($tournament) {
-                $btnEdit = '<a href="' . route('admin.tournament.edit', $tournament) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
-                                <i class="fa fa-lg fa-fw fa-pen"></i>
-                            </a>';
-                $btnDelete = '<form method="POST" action="' . route('admin.tournament.destroy', $tournament) . '" style="display:inline;">
-                                ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
-                                    <i class="fa fa-lg fa-fw fa-trash"></i>
-                                </button>
-                            </form>';
-                $btnDetails = '<a href="' . route('admin.tournament.listTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
-                                <i class="fa fa-lg fa-fw fa-eye"></i>
-                            </a>';
-                $btnAddTeams = '<a href="' . route('admin.tournament.addTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Add Teams">
-                                <i class="fa fa-lg fa-fw fa-users"></i>
-                            </a>';
+                $btnEdit = '';
+                $btnDelete = '';
+                $btnDetails = '';
+                $btnAddTeams = '';
+
+                if (auth()->user()->can('admin.tournamen.edit')) {
+                    $btnEdit = '<a href="' . route('admin.tournament.edit', $tournament) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
+                                    <i class="fa fa-lg fa-fw fa-pen"></i>
+                                </a>';
+                }
+
+                if (auth()->user()->can('admin.tournamen.destroy')) {
+                    $btnDelete = '<form method="POST" action="' . route('admin.tournament.destroy', $tournament) . '" style="display:inline;">
+                                    ' . csrf_field() . method_field('DELETE') . '
+                                    <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
+                                        <i class="fa fa-lg fa-fw fa-trash"></i>
+                                    </button>
+                                </form>';
+                }
+                
+                    $btnDetails = '<a href="' . route('admin.tournament.listTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+                                    <i class="fa fa-lg fa-fw fa-eye"></i>
+                                </a>';
+
+                if (auth()->user()->can('admin.tournamen.index')) {
+                    $btnAddTeams = '<a href="' . route('admin.tournament.addTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Add Teams">
+                                    <i class="fa fa-lg fa-fw fa-users"></i>
+                                </a>';
+                }
+
                 $logo = $tournament->logo ? '<img src="' . asset('storage/' . $tournament->logo) . '" alt="Logo" height="50">' : 'No logo';
 
                 return [
@@ -65,6 +80,7 @@ class TournamentController extends Controller
 
         return view('admin.tournament.index', compact('heads', 'config', 'subtitle', 'content_header_title', 'content_header_subtitle'));
     }
+
 
     public function addTeams(Tournament $tournament)
     {
@@ -197,8 +213,8 @@ class TournamentController extends Controller
      */
     public function destroy(string $id)
     {
-        $tournament = Tournament::find($id);
-        $tournament->delete();
+        // $tournament = Tournament::find($id);
+        // $tournament->delete();
 
         return redirect()->route('admin.tournament.index')->with('success', 'Torneo eliminado exitosamente.');
     }

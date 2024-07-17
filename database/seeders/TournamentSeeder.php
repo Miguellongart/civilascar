@@ -43,7 +43,7 @@ class TournamentSeeder extends Seeder
             'CALM INFINITY',
             'FLASH COIN',
             'PAGO LINEA',
-            'LOS DEL BARRIO',
+            'El chorro 24',
             'THE NEW',
             'ASOC. SENTIMIENTO PERUANO',
             'TAGUIBEDS',
@@ -94,7 +94,7 @@ class TournamentSeeder extends Seeder
         // Generar fixtures
         $this->generateFixtures($tournament, $teams);
     }
-
+    
     /**
      * Generate fixtures for the tournament.
      *
@@ -105,24 +105,50 @@ class TournamentSeeder extends Seeder
     private function generateFixtures(Tournament $tournament, array $teams)
     {
         $numTeams = count($teams);
-        $startDate = Carbon::parse($tournament->start_date);
+        $startDate = Carbon::parse('2024-07-21'); // Comienza el domingo 21
+        $round = 1;
+
+        // Si el número de equipos es impar, agregamos un equipo ficticio
+        if ($numTeams % 2 != 0) {
+            $teams[] = (object) ['id' => null, 'name' => 'BYE'];
+            $numTeams++;
+        }
+
+        $fixtures = [];
 
         for ($i = 0; $i < $numTeams - 1; $i++) {
-            for ($j = $i + 1; $j < $numTeams; $j++) {
-                Fixture::create([
-                    'tournament_id' => $tournament->id,
-                    'home_team_id' => $teams[$i]->id,
-                    'away_team_id' => $teams[$j]->id,
-                    'match_date' => $startDate->addDays(rand(1, 7)), // Fecha aleatoria entre 1 y 7 días a partir de la fecha de inicio
-                    'status' => 'scheduled',
-                    'home_team_score' => null,
-                    'away_team_score' => null,
-                    'sport' => 'football',
-                    'periods' => 'halves',
-                    'period_times' => json_encode(['first_half' => 45, 'second_half' => 45]),
-                ]);
-                $startDate = Carbon::parse($tournament->start_date); // Reset start date for next fixture
+            for ($j = 0; $j < $numTeams / 2; $j++) {
+                $home = ($i + $j) % ($numTeams - 1);
+                $away = ($numTeams - 1 - $j + $i) % ($numTeams - 1);
+
+                // El último equipo siempre juega en casa en la última ronda
+                if ($j == 0) {
+                    $away = $numTeams - 1;
+                }
+
+                // Evitar crear fixtures con el equipo ficticio
+                if ($teams[$home]->id !== null && $teams[$away]->id !== null) {
+                    $fixtures[] = [
+                        'tournament_id' => $tournament->id,
+                        'round' => $round,
+                        'home_team_id' => $teams[$home]->id,
+                        'away_team_id' => $teams[$away]->id,
+                        'match_date' => $startDate->copy()->addWeeks($round - 1),
+                        'status' => 'scheduled',
+                        'home_team_score' => null,
+                        'away_team_score' => null,
+                        'sport' => 'football',
+                        'periods' => 'halves',
+                        'period_times' => json_encode(['first_half' => 45, 'second_half' => 45]),
+                    ];
+                }
             }
+            $round++;
+        }
+
+        // Insertar los fixtures en la base de datos
+        foreach ($fixtures as $fixture) {
+            Fixture::create($fixture);
         }
     }
 }

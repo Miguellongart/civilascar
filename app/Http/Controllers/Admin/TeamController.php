@@ -27,18 +27,26 @@ class TeamController extends Controller
 
         $config = [
             'data' => $teams->map(function($team) {
-                $btnEdit = '<a href="' . route('admin.team.edit', $team) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
-                                <i class="fa fa-lg fa-fw fa-pen"></i>
-                            </a>';
-                $btnDelete = '<form method="POST" action="' . route('admin.team.destroy', $team) . '" style="display:inline;">
+
+                if (auth()->user()->can('admin.team.edit')) {
+                    $btnEdit = '<a href="' . route('admin.team.edit', $team) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
+                                    <i class="fa fa-lg fa-fw fa-pen"></i>
+                                </a>';
+                }
+                if (auth()->user()->can('admin.team.destroy')) {
+                    $btnDelete = '<form method="POST" action="' . route('admin.team.destroy', $team) . '" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
                                 <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
                                     <i class="fa fa-lg fa-fw fa-trash"></i>
                                 </button>
                             </form>';
+                }
+                if (auth()->user()->can('admin.team.show')) {
                 $btnDetails = '<a href="' . route('admin.team.show', $team) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
                                 <i class="fa fa-lg fa-fw fa-eye"></i>
                             </a>';
+                }
+
                 $logo = $team->logo ? '<img src="' . asset('storage/' . $team->logo) . '" alt="Logo" height="50">' : 'No logo';
 
                 return [

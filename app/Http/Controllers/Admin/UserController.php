@@ -25,18 +25,25 @@ class UserController extends Controller
 
         $config = [
             'data' => $users->map(function($user) {
-                $btnEdit = '<a href="' . route('admin.user.edit', $user) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
-                                <i class="fa fa-lg fa-fw fa-pen"></i>
-                            </a>';
-                $btnDelete = '<form method="POST" action="' . route('admin.user.destroy', $user) . '" style="display:inline;">
-                                ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
-                                    <i class="fa fa-lg fa-fw fa-trash"></i>
-                                </button>
-                            </form>';
-                $btnDetails = '<a href="' . route('admin.user.show', $user) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
-                                <i class="fa fa-lg fa-fw fa-eye"></i>
-                            </a>';
+                
+                if (auth()->user()->can('admin.user.edit')) {
+                    $btnEdit = '<a href="' . route('admin.user.edit', $user) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
+                                    <i class="fa fa-lg fa-fw fa-pen"></i>
+                                </a>';
+                }
+                if (auth()->user()->can('admin.user.destroy')) {
+                    $btnDelete = '<form method="POST" action="' . route('admin.user.destroy', $user) . '" style="display:inline;">
+                                    ' . csrf_field() . method_field('DELETE') . '
+                                    <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
+                                        <i class="fa fa-lg fa-fw fa-trash"></i>
+                                    </button>
+                                </form>';
+                }
+                if (auth()->user()->can('admin.user.show')) {
+                    $btnDetails = '<a href="' . route('admin.user.show', $user) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+                                    <i class="fa fa-lg fa-fw fa-eye"></i>
+                                </a>';
+                }
                 return [
                     $user->id,
                     $user->name,
