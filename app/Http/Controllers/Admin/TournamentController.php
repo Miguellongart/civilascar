@@ -33,13 +33,13 @@ class TournamentController extends Controller
                 $btnDetails = '';
                 $btnAddTeams = '';
 
-                if (auth()->user()->can('admin.tournamen.edit')) {
+                if (auth()->user()->can('admin.tournament.edit')) {
                     $btnEdit = '<a href="' . route('admin.tournament.edit', $tournament) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
                                     <i class="fa fa-lg fa-fw fa-pen"></i>
                                 </a>';
                 }
 
-                // if (auth()->user()->can('admin.tournamen.destroy')) {
+                // if (auth()->user()->can('admin.tournament.destroy')) {
                 //     $btnDelete = '<form method="POST" action="' . route('admin.tournament.destroy', $tournament) . '" style="display:inline;">
                 //                     ' . csrf_field() . method_field('DELETE') . '
                 //                     <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
@@ -52,7 +52,7 @@ class TournamentController extends Controller
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>';
 
-                if (auth()->user()->can('admin.tournamen.index')) {
+                if (auth()->user()->can('admin.tournament.edit')) {
                     $btnAddTeams = '<a href="' . route('admin.tournament.addTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Add Teams">
                                     <i class="fa fa-lg fa-fw fa-users"></i>
                                 </a>';
