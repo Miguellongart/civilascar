@@ -53,8 +53,13 @@
                             <input type="password" name="password_confirmation" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                         </div>
                         <div class="form-group">
-                            <label for="position">Posición</label>
-                            <input type="text" name="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            <label for="position">Selecciona el Equipo</label>
+                            <select name="position" id="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                <option value="Arquero">Arquero (ARQ)</option>
+                                <option value="Defensa">Defensa (DF)</option>
+                                <option value="Medio Centro">Medio Centro (MC)</option>
+                                <option value="Delantero">Delantero (D)</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="number">Número Camiseta</label>

@@ -48,11 +48,9 @@ class TeamController extends Controller
                                 </button>
                             </form>';
                 }
-                if (auth()->user()->can('admin.team.show')) {
                     $btnDetails = '<a href="' . route('admin.team.show', $team) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>';
-                }
 
                 $logo = $team->logo ? '<img src="' . asset('storage/' . $team->logo) . '" alt="Logo" height="50">' : 'No logo';
 
