@@ -148,13 +148,11 @@ class TeamController extends Controller
         return view('admin.team.edit', compact('team', 'subtitle', 'content_header_title', 'content_header_subtitle', 'users'));
     }
 
-   /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Team $team)
     {
         // Validación de datos
         $request->validate([
+            'name' => 'required|string|max:255',
             'coach' => 'nullable|string|max:255',
             'logo' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
@@ -162,9 +160,8 @@ class TeamController extends Controller
             'user_id' => 'nullable|exists:users,id',
         ]);
 
-
         // Obtener todos los datos del request excepto el logo
-        $data = $request->all();
+        $data = $request->except('logo');
 
         // Manejar la carga del archivo de logo
         if ($request->hasFile('logo')) {
@@ -177,25 +174,23 @@ class TeamController extends Controller
                 Storage::disk('public')->delete($team->logo);
             }
         }
-        
-        // Generar slug si no existe
+
+        // Generar un slug único
         if (!isset($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
-        }
-        // Actualizar los datos del equipo
-        if($data['name'] != $team->name ){
-            $team->name = $data['name'];
-            $team->slug = $data['slug'];
-        }
-        $team->coach = $data['coach'] ?? $team->coach;
-        $team->description = $data['description'] ?? $team->description;
-        $team->home_stadium = $data['home_stadium'] ?? $team->home_stadium;
-        $team->user_id = $data['user_id'] ?? $team->user_id;
-        if (isset($data['logo'])) {
-            $team->logo = $data['logo'];
+            $slug = Str::slug($data['name']);
+            $originalSlug = $slug;
+            $counter = 1;
+            
+            while (Team::where('slug', $slug)->where('id', '!=', $team->id)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+            
+            $data['slug'] = $slug;
         }
 
-        $team->save();
+        // Actualizar los datos del equipo directamente
+        $team->update($data);
 
         // Redireccionar con un mensaje de éxito
         return redirect()->route('admin.team.index')->with('success', 'Equipo actualizado exitosamente.');
