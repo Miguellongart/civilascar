@@ -26,6 +26,11 @@ class Fixture extends Model
         'period_times' => 'array',
     ];
 
+    public function playerEvents()
+    {
+        return $this->hasMany(PlayerFixtureEvent::class);
+    }
+
     public function tournament()
     {
         return $this->belongsTo(Tournament::class);

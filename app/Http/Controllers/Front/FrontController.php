@@ -10,6 +10,7 @@ use App\Models\Tournament;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class FrontController extends Controller
@@ -35,14 +36,30 @@ class FrontController extends Controller
     {
         $tournaments = Tournament::with(['teams', 'fixtures', 'positionTables'])->get();
     
-        $firstFixtureDate = Fixture::orderBy('match_date')->first()->match_date;
-        $fixtures = Fixture::where('match_date', $firstFixtureDate)->orderBy('match_date')->get();
+        // Obtener la fecha y hora del primer fixture
+        $firstFixture = Fixture::select(DB::raw('DATE(match_date) as match_date, TIME(match_date) as start_time'))
+            ->orderBy(DB::raw('DATE(match_date)'))
+            ->orderBy(DB::raw('TIME(match_date)'))
+            ->first();
     
-        if ($request->has('filter_date')) {
-            $fixtures = Fixture::where('match_date', $request->filter_date)->orderBy('match_date')->get();
+        $firstFixtureDate = $firstFixture ? $firstFixture->match_date : null;
+    
+        // Obtener fixtures según la fecha de filtro o la primera fecha disponible
+        $filterDate = $request->has('filter_date') ? $request->filter_date : $firstFixtureDate;
+        $fixtures = Fixture::with(['homeTeam', 'awayTeam'])
+            ->where(DB::raw('DATE(match_date)'), $filterDate)
+            ->orderBy(DB::raw('TIME(match_date)'))
+            ->orderByRaw("FIELD(status, 'completed', 'scheduled', 'canceled')")
+            ->get();
+    
+        // Ordenar la tabla de posiciones
+        foreach ($tournaments as $tournament) {
+            $tournament->positionTables = $tournament->positionTables->sortByDesc(function ($position) {
+                return [$position->points, $position->goal_difference, $position->goals_for];
+            });
         }
     
-        return view('front.tournament.index', compact('tournaments', 'fixtures'));
+        return view('front.tournament.index', compact('tournaments', 'fixtures', 'filterDate'));
     }
 
 

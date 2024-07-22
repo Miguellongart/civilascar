@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\FixtureController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\UserController;
@@ -53,6 +54,15 @@ Route::middleware('auth')->group(function () {
     Route::get('team/{id}/edit', [TeamController::class, 'edit'])->name('admin.team.edit');
     Route::put('team/{id}', [TeamController::class, 'update'])->name('admin.team.update');
     Route::delete('team/{id}', [TeamController::class, 'destroy'])->name('admin.team.destroy');
+
+
+    Route::get('tournaments/{tournament}/fixtures', [FixtureController::class, 'index'])->name('admin.fixture.index');
+    Route::get('fixture/create', [FixtureController::class, 'create'])->name('admin.fixture.create');
+    Route::post('fixture', [FixtureController::class, 'store'])->name('admin.fixture.store');
+    Route::get('fixture/{id}', [FixtureController::class, 'show'])->name('admin.fixture.show');
+    Route::get('fixture/{id}/edit', [FixtureController::class, 'edit'])->name('admin.fixture.edit');
+    Route::put('fixture/{id}', [FixtureController::class, 'update'])->name('admin.fixture.update');
+    Route::delete('fixture/{id}', [FixtureController::class, 'destroy'])->name('admin.fixtures.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {

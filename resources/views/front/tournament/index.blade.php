@@ -25,19 +25,11 @@
 
                 <div class="row mb-5">
                     <div class="col-md-8">
-                        {{-- <form method="GET" action="{{ route('front.tournament.index') }}" class="mb-4">
-                            <div class="form-group">
-                                <label for="filter_date">Filtrar por fecha</label>
-                                <input type="date" name="filter_date" id="filter_date" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Filtrar</button>
-                        </form> --}}
                     </div>
                     <div class="col-md-4">
                         <a href="{{route('front.inscription')}}" class="btn btn-white px-3 py-2 mt-2">Registrar Jugador</a>
                     </div>
                 </div>
-
 
                 <div class="container">
                     <div class="row mb-6">
@@ -54,15 +46,30 @@
                         <!-- Contenido principal -->
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapsePositions" aria-expanded="true" aria-controls="collapsePositions">
-                                    Tabla de Posiciones
-                                </button>
-                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseFixtures" aria-expanded="false" aria-controls="collapseFixtures">
-                                    Fixtures
-                                </button>
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-primary" id="positionsButton">
+                                            Tabla de Posiciones
+                                        </button>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-primary" id="fixturesButton">
+                                            Fixtures
+                                        </button>
+                                    </div>
+                                    <div class="col-auto">
+                                        <form method="GET" action="{{ route('front.tournament', $tournament->id) }}" class="form-inline">
+                                            <div class="form-group">
+                                                <label for="filter_date" class="sr-only">Filtrar por fecha</label>
+                                                <input type="date" name="filter_date" id="filter_date" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" value="{{ $filterDate }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary ml-2">Filtrar</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                 
-                            <div id="collapsePositions" class="collapse show">
+                            <div id="positionsSection" class="content-section" style="display: block;">
                                 <h4>Tabla de Posiciones</h4>
                                 <table class="table table-striped">
                                     <thead>
@@ -81,10 +88,7 @@
                                     <tbody>
                                         @foreach ($tournament->positionTables as $position)
                                             <tr>
-                                                <td>
-                                                    {{-- <img src="{{ asset('storage/'.$position->team->logo) }}" alt="Logo" height="30"> --}}
-                                                    {{ $position->team->name }}
-                                                </td>
+                                                <td>{{ $position->team->name }}</td>
                                                 <td>{{ $position->played }}</td>
                                                 <td>{{ $position->won }}</td>
                                                 <td>{{ $position->drawn }}</td>
@@ -99,7 +103,7 @@
                                 </table>
                             </div>
                 
-                            <div id="collapseFixtures" class="collapse">
+                            <div id="fixturesSection" class="content-section" style="display: none;">
                                 <h4>Fixtures</h4>
                                 <div class="fixtures">
                                     @foreach ($fixtures as $fixture)
@@ -148,37 +152,30 @@
         </div>
     </section>
 
-    @section('scripts')
+    @push('guest_js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var positionsButton = document.querySelector('[data-target="#collapsePositions"]');
-            var fixturesButton = document.querySelector('[data-target="#collapseFixtures"]');
-            var collapsePositions = document.getElementById('collapsePositions');
-            var collapseFixtures = document.getElementById('collapseFixtures');
-    
+            var positionsButton = document.getElementById('positionsButton');
+            var fixturesButton = document.getElementById('fixturesButton');
+            var positionsSection = document.getElementById('positionsSection');
+            var fixturesSection = document.getElementById('fixturesSection');
+
+            // Mostrar la tabla de posiciones por defecto y ocultar los fixtures
+            positionsSection.style.display = 'block';
+            fixturesSection.style.display = 'none';
+            console.log(positionsButton)
             positionsButton.addEventListener('click', function () {
-                if (!collapsePositions.classList.contains('show')) {
-                    $('#collapsePositions').collapse('show');
-                    $('#collapseFixtures').collapse('hide');
-                }
+                positionsSection.style.display = 'block';
+                fixturesSection.style.display = 'none';
             });
-    
+
             fixturesButton.addEventListener('click', function () {
-                if (!collapseFixtures.classList.contains('show')) {
-                    $('#collapseFixtures').collapse('show');
-                    $('#collapsePositions').collapse('hide');
-                }
+                positionsSection.style.display = 'none';
+                fixturesSection.style.display = 'block';
             });
-    
-            // Ensure only one section is visible on page load
-            if (collapsePositions.classList.contains('show')) {
-                collapseFixtures.classList.remove('show');
-            } else if (collapseFixtures.classList.contains('show')) {
-                collapsePositions.classList.remove('show');
-            }
         });
     </script>
-    @endsection
+    @endpush
 
     @push('guest_css')
         <style>
@@ -186,7 +183,7 @@
                 display: flex;
                 flex-direction: column;
             }
-        
+
             .card {
                 background-color: #f8f9fa;
                 border: 1px solid #dee2e6;
@@ -197,22 +194,23 @@
                 justify-content: space-between;
                 align-items: center;
             }
-        
+
             .card-body {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
             }
-        
+
             .team {
                 font-weight: bold;
             }
-        
+
             .score {
                 margin: 0 0.5rem;
                 font-size: 1.25rem;
             }
+
             .publicidad {
                 max-width: 48%; /* Ajusta este valor según sea necesario para que los logos quepan uno al lado del otro */
             }
@@ -221,6 +219,10 @@
                 .d-flex.flex-row img {
                     margin-right: 10px;
                 }
+            }
+
+            .content-section {
+                display: none;
             }
         </style>  
     @endpush

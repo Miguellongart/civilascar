@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class TournamentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
         $heads = [
@@ -32,6 +30,7 @@ class TournamentController extends Controller
                 $btnDelete = '';
                 $btnDetails = '';
                 $btnAddTeams = '';
+                $btnFixtures = '';
 
                 if (auth()->user()->can('admin.tournament.edit')) {
                     $btnEdit = '<a href="' . route('admin.tournament.edit', $tournament) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
@@ -39,23 +38,19 @@ class TournamentController extends Controller
                                 </a>';
                 }
 
-                // if (auth()->user()->can('admin.tournament.destroy')) {
-                //     $btnDelete = '<form method="POST" action="' . route('admin.tournament.destroy', $tournament) . '" style="display:inline;">
-                //                     ' . csrf_field() . method_field('DELETE') . '
-                //                     <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
-                //                         <i class="fa fa-lg fa-fw fa-trash"></i>
-                //                     </button>
-                //                 </form>';
-                // }
-                
-                    $btnDetails = '<a href="' . route('admin.tournament.listTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
-                                    <i class="fa fa-lg fa-fw fa-eye"></i>
-                                </a>';
+                $btnDetails = '<a href="' . route('admin.tournament.listTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+                                <i class="fa fa-lg fa-fw fa-eye"></i>
+                            </a>';
 
                 if (auth()->user()->can('admin.tournament.edit')) {
                     $btnAddTeams = '<a href="' . route('admin.tournament.addTeams', $tournament) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Add Teams">
                                     <i class="fa fa-lg fa-fw fa-users"></i>
                                 </a>';
+                }
+                if (auth()->user()->can('admin.fixture.index')) {
+                $btnFixtures = '<a href="' . route('admin.fixtures.index', $tournament) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="View Fixtures">
+                                <i class="fa fa-lg fa-fw fa-calendar-alt"></i>
+                            </a>';
                 }
 
                 $logo = $tournament->logo ? '<img src="' . asset('storage/' . $tournament->logo) . '" alt="Logo" height="50">' : 'No logo';
@@ -67,7 +62,7 @@ class TournamentController extends Controller
                     $tournament->start_date,
                     $tournament->end_date,
                     $logo,
-                    '<nobr>' . $btnEdit . $btnDelete . $btnDetails . $btnAddTeams . '</nobr>'
+                    '<nobr>' . $btnEdit . $btnDelete . $btnDetails . $btnAddTeams . $btnFixtures . '</nobr>'
                 ];
             })->toArray(),
             'order' => [[1, 'asc']],
