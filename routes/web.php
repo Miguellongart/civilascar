@@ -62,7 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::get('fixture/{id}', [FixtureController::class, 'show'])->name('admin.fixture.show');
     Route::get('fixture/{id}/edit', [FixtureController::class, 'edit'])->name('admin.fixture.edit');
     Route::put('fixture/{id}', [FixtureController::class, 'update'])->name('admin.fixture.update');
-    Route::delete('fixture/{id}', [FixtureController::class, 'destroy'])->name('admin.fixtures.destroy');
+    Route::delete('fixture/{id}', [FixtureController::class, 'destroy'])->name('admin.fixture.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {

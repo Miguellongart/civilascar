@@ -48,7 +48,7 @@ class TournamentController extends Controller
                                 </a>';
                 }
                 if (auth()->user()->can('admin.fixture.index')) {
-                $btnFixtures = '<a href="' . route('admin.fixtures.index', $tournament) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="View Fixtures">
+                $btnFixtures = '<a href="' . route('admin.fixture.index', $tournament) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="View Fixtures">
                                 <i class="fa fa-lg fa-fw fa-calendar-alt"></i>
                             </a>';
                 }
