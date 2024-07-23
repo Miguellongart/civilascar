@@ -61,6 +61,10 @@ class FixtureController extends Controller
     public function update(Request $request, $id)
     {
         $fixture = Fixture::findOrFail($id);
+
+        // Guardar el estado anterior del fixture
+        $previousFixture = $fixture->replicate();
+
         $fixture->update($request->only(['match_date', 'status', 'home_team_score', 'away_team_score']));
 
         // Actualizar eventos existentes y agregar nuevos eventos
@@ -74,12 +78,12 @@ class FixtureController extends Controller
         }
 
         // Actualizar la tabla de posiciones
-        $this->updatePositionTable($fixture);
+        $this->updatePositionTable($previousFixture, $fixture);
 
         return redirect()->route('admin.fixture.index', $fixture->tournament_id)->with('success', 'Fixture updated successfully');
     }
 
-    private function updatePositionTable(Fixture $fixture)
+    private function updatePositionTable(Fixture $previousFixture, Fixture $fixture)
     {
         // Obtener los equipos y sus posiciones
         $homeTeamPosition = PositionTable::where('team_id', $fixture->home_team_id)->where('tournament_id', $fixture->tournament_id)->first();
@@ -100,36 +104,39 @@ class FixtureController extends Controller
             ]);
         }
 
-        // Actualizar estadísticas basadas en el resultado del partido
+        // Si el fixture estaba completado previamente, restar las estadísticas previas
+        if ($previousFixture->status == 'completed') {
+            $this->adjustTeamStats($homeTeamPosition, $previousFixture->home_team_score, $previousFixture->away_team_score, false);
+            $this->adjustTeamStats($awayTeamPosition, $previousFixture->away_team_score, $previousFixture->home_team_score, false);
+        }
+
+        // Si el fixture está completado ahora, sumar las nuevas estadísticas
         if ($fixture->status == 'completed') {
-            $homeTeamScore = $fixture->home_team_score;
-            $awayTeamScore = $fixture->away_team_score;
+            $this->adjustTeamStats($homeTeamPosition, $fixture->home_team_score, $fixture->away_team_score, true);
+            $this->adjustTeamStats($awayTeamPosition, $fixture->away_team_score, $fixture->home_team_score, true);
+        }
 
-            if ($homeTeamScore > $awayTeamScore) {
-                $homeTeamPosition->won += 1;
-                $awayTeamPosition->lost += 1;
-            } elseif ($homeTeamScore < $awayTeamScore) {
-                $awayTeamPosition->won += 1;
-                $homeTeamPosition->lost += 1;
-            } else {
-                $homeTeamPosition->drawn += 1;
-                $awayTeamPosition->drawn += 1;
-            }
+        $homeTeamPosition->save();
+        $awayTeamPosition->save();
+    }
 
-            $homeTeamPosition->played += 1;
-            $awayTeamPosition->played += 1;
-            $homeTeamPosition->goals_for += $homeTeamScore;
-            $homeTeamPosition->goals_against += $awayTeamScore;
-            $homeTeamPosition->goal_difference = $homeTeamPosition->goals_for - $homeTeamPosition->goals_against;
-            $homeTeamPosition->points = $homeTeamPosition->won * 3 + $homeTeamPosition->drawn;
+    private function adjustTeamStats(PositionTable $teamPosition, $goalsFor, $goalsAgainst, $isAdding)
+    {
+        $factor = $isAdding ? 1 : -1;
 
-            $awayTeamPosition->goals_for += $awayTeamScore;
-            $awayTeamPosition->goals_against += $homeTeamScore;
-            $awayTeamPosition->goal_difference = $awayTeamPosition->goals_for - $awayTeamPosition->goals_against;
-            $awayTeamPosition->points = $awayTeamPosition->won * 3 + $awayTeamPosition->drawn;
+        $teamPosition->played += $factor;
+        $teamPosition->goals_for += $goalsFor * $factor;
+        $teamPosition->goals_against += $goalsAgainst * $factor;
+        $teamPosition->goal_difference = $teamPosition->goals_for - $teamPosition->goals_against;
 
-            $homeTeamPosition->save();
-            $awayTeamPosition->save();
+        if ($goalsFor > $goalsAgainst) {
+            $teamPosition->won += $factor;
+            $teamPosition->points += 3 * $factor;
+        } elseif ($goalsFor < $goalsAgainst) {
+            $teamPosition->lost += $factor;
+        } else {
+            $teamPosition->drawn += $factor;
+            $teamPosition->points += 1 * $factor;
         }
     }
 }
