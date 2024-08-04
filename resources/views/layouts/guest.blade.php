@@ -56,6 +56,9 @@
         <script src="{{asset("/front/js/google-map.js")}}"></script>
         <script src="{{asset("/front/js/main.js")}}"></script>
         {{-- Custom Scripts --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        @include('sweetalert::alert')
+
         @stack('guest_js')
     </body>
 </html>

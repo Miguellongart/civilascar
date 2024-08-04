@@ -25,33 +25,54 @@
                                     <option value="{{ $tournament->id }}">{{ $tournament->name }}</option>
                                 @endforeach
                             </select>
+                            @error('tournament_id')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="team_id">Selecciona el Equipo</label>
                             <select name="team_id" id="team_id" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                                 <option value="">Selecciona un Equipo</option>
                             </select>
+                            @error('team_id')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="name">Nombre</label>
                             <input type="text" name="name" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            @error('name')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="dni">DNI/Documento</label>
                             <input type="text" name="dni" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            @error('dni')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" name="email" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            @error('email')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="password">Contraseña</label>
                             <input type="password" name="password" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            @error('password')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="password_confirmation">Confirmar Contraseña</label>
                             <input type="password" name="password_confirmation" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                        </div>
+                            @error('password_confirmation')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div> --}}
                         <div class="form-group">
                             <label for="position">Selecciona el Equipo</label>
                             <select name="position" id="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
@@ -60,14 +81,23 @@
                                 <option value="Medio Centro">Medio Centro (MC)</option>
                                 <option value="Delantero">Delantero (D)</option>
                             </select>
+                            @error('position')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="number">Número Camiseta</label>
                             <input type="number" name="number" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            @error('number')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="photo">Foto del Jugador</label>
                             <input type="file" name="photo" class="form-control-file" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;">
+                            @error('photo')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <input type="submit" value="Registrar Jugador" class="btn btn-white py-3 px-5">

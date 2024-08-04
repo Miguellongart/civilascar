@@ -56,10 +56,11 @@
         </x-adminlte-card>
         
         <x-adminlte-card theme="info" theme-mode="outline" title="Jugadores del Equipo">
-            <table class="table table-striped">
+            <table id="playersTable" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Nombre</th>
+                        <th>Documento</th>
                         <th>Posición</th>
                         <th>Número</th>
                         {{-- <th>Nacionalidad</th>
@@ -71,6 +72,7 @@
                     @foreach ($team->players as $player)
                         <tr>
                             <td>{{ $player->user->name }}</td>
+                            <td>{{ $player->user->dni }}</td>
                             <td>{{ $player->position }}</td>
                             <td>{{ $player->number }}</td>
                             {{-- <td>{{ $player->nationality }}</td>
@@ -88,4 +90,9 @@
 @endpush
 
 @push('js')
+<script>
+    $(document).ready(function() {
+        $('#playersTable').DataTable();
+    });
+</script>
 @endpush

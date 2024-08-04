@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Str;
 
 class FrontController extends Controller
 {
@@ -85,21 +87,30 @@ class FrontController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
             'dni' => 'required|string|max:255',
-            'password' => 'required|string|min:8|confirmed',
             'position' => 'required|string|max:255',
             'number' => 'required|integer',
             'photo' => 'nullable|image|max:2048',
             'team_id' => 'required|exists:teams,id',
             'tournament_id' => 'required|exists:tournaments,id',
         ]);
+    
+        // Generar correo y contraseña aleatorios si no se proporcionan
+        if (!$request->filled('email')) {
+            $request->merge(['email' => Str::random(10) . '@example.com']);
+        }
+        if (!$request->filled('password')) {
+            $randomPassword = Str::random(10);
+            $request->merge(['password' => $randomPassword, 'password_confirmation' => $randomPassword]);
+        }
+    
         $user = User::where('email', $request->email)->orWhere('dni', $request->dni)->first();
-
+    
         if ($user) {
             $player = Player::where('user_id', $user->id)->where('team_id', $request->team_id)->first();
             if ($player) {
-                return redirect()->back()->with('error', 'El usuario ya está registrado y asociado a este equipo.');
+                Alert::error('Error', 'El usuario ya está registrado y asociado a este equipo.');
+                return redirect()->back();
             } else {
                 // Asociar el usuario existente a un nuevo equipo
                 $playerData = $request->only(['position', 'number', 'team_id']);
@@ -115,7 +126,8 @@ class FrontController extends Controller
                     $user->assignRole('player');
                 }
     
-                return redirect()->route('front.inscription')->with('success', 'Usuario existente asociado exitosamente a un nuevo equipo en el torneo.');
+                Alert::success('Éxito', 'Usuario existente asociado exitosamente a un nuevo equipo en el torneo.');
+                return redirect()->route('front.inscription');
             }
         } else {
             // Registrar un nuevo usuario
@@ -134,7 +146,8 @@ class FrontController extends Controller
             // Asignar el rol 'player' al usuario
             $user->assignRole('player');
     
-            return redirect()->route('front.inscription')->with('success', 'Nuevo usuario registrado y equipo inscrito exitosamente en el torneo.');
+            Alert::success('Éxito', 'Nuevo usuario registrado y equipo inscrito exitosamente en el torneo.');
+            return redirect()->route('front.inscription');
         }
     }
 }
