@@ -35,12 +35,12 @@
                     <div class="row mb-6">
                         <!-- Columna izquierda para banners de publicidad -->
                         <div class="col-md-2">
-                            <div class="banner">
+                            {{-- <div class="banner">
                                 <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
                             </div>
                             <div class="banner mt-4">
                                 <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
-                            </div>
+                            </div> --}}
                         </div>
                 
                         <!-- Contenido principal -->
@@ -139,12 +139,12 @@
                 
                         <!-- Columna derecha para banners de publicidad -->
                         <div class="col-md-2">
-                            <div class="banner">
+                            {{-- <div class="banner">
                                 <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
                             </div>
                             <div class="banner mt-4">
                                 <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
