@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\FixtureController;
+use App\Http\Controllers\Admin\PlayerController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\UserController;
@@ -63,6 +64,12 @@ Route::middleware('auth')->group(function () {
     Route::get('fixture/{id}/edit', [FixtureController::class, 'edit'])->name('admin.fixture.edit');
     Route::put('fixture/{id}', [FixtureController::class, 'update'])->name('admin.fixture.update');
     Route::delete('fixture/{id}', [FixtureController::class, 'destroy'])->name('admin.fixture.destroy');
+
+    // Rutas para editar y eliminar jugadores
+    Route::get('player/{id}/edit', [PlayerController::class, 'edit'])->name('admin.player.edit');
+    Route::put('player/{id}', [PlayerController::class, 'update'])->name('admin.player.update');
+    Route::delete('player/{id}', [PlayerController::class, 'destroy'])->name('admin.player.destroy');
+
 });
 
 Route::middleware(['auth'])->group(function () {

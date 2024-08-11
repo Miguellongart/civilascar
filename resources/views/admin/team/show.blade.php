@@ -63,9 +63,8 @@
                         <th>Documento</th>
                         <th>Posición</th>
                         <th>Número</th>
-                        {{-- <th>Nacionalidad</th>
-                        <th>Fecha de Nacimiento</th> --}}
                         <th>Foto</th>
+                        <th>Acciones</th> <!-- Nueva columna para los botones -->
                     </tr>
                 </thead>
                 <tbody>
@@ -75,9 +74,22 @@
                             <td>{{ $player->user->dni }}</td>
                             <td>{{ $player->position }}</td>
                             <td>{{ $player->number }}</td>
-                            {{-- <td>{{ $player->nationality }}</td>
-                            <td>{{ $player->birth_date }}</td> --}}
                             <td><img src="{{ asset('storage/' . $player->photo) }}" alt="{{ $player->name }}" width="50"></td>
+                            <td>
+                                <!-- Botón para actualizar -->
+                                <a href="{{ route('admin.player.edit', $player->id) }}" class="btn btn-sm btn-primary mx-1 shadow" title="Actualizar">
+                                    <i class="fa fa-lg fa-fw fa-pen"></i>
+                                </a>
+                                
+                                <!-- Botón para eliminar -->
+                                <form method="POST" action="{{ route('admin.player.destroy', $player->id) }}" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger mx-1 shadow" title="Eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este jugador?')">
+                                        <i class="fa fa-lg fa-fw fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

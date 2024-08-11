@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class FrontController extends Controller
 {
@@ -38,18 +39,23 @@ class FrontController extends Controller
     {
         $tournaments = Tournament::with(['teams', 'fixtures', 'positionTables'])->get();
     
-        // Obtener la fecha y hora del primer fixture
-        $firstFixture = Fixture::select(DB::raw('DATE(match_date) as match_date, TIME(match_date) as start_time'))
-            ->orderBy(DB::raw('DATE(match_date)'))
-            ->orderBy(DB::raw('TIME(match_date)'))
-            ->first();
+        // Obtener las fechas de los fixtures
+        $dates = Fixture::selectRaw('DATE(match_date) as match_date')
+                        ->distinct()
+                        ->orderBy('match_date')
+                        ->get()
+                        ->pluck('match_date');
     
-        $firstFixtureDate = $firstFixture ? $firstFixture->match_date : null;
+        // Determinar la siguiente fecha disponible o usar la fecha del filtro
+        $nextDate = $dates->firstWhere(function ($date) {
+            return $date >= now()->format('Y-m-d');
+        });
     
-        // Obtener fixtures según la fecha de filtro o la primera fecha disponible
-        $filterDate = $request->has('filter_date') ? $request->filter_date : $firstFixtureDate;
+        $filterDate = $request->get('filter_date', $nextDate);
+    
+        // Obtener los fixtures correspondientes a la fecha seleccionada
         $fixtures = Fixture::with(['homeTeam', 'awayTeam'])
-            ->where(DB::raw('DATE(match_date)'), $filterDate)
+            ->whereDate('match_date', $filterDate)
             ->orderBy(DB::raw('TIME(match_date)'))
             ->orderByRaw("FIELD(status, 'completed', 'scheduled', 'canceled')")
             ->get();
@@ -61,9 +67,8 @@ class FrontController extends Controller
             });
         }
     
-        return view('front.tournament.index', compact('tournaments', 'fixtures', 'filterDate'));
+        return view('front.tournament.index', compact('tournaments', 'fixtures', 'filterDate', 'dates'));
     }
-
 
     public function inscription()
     {
@@ -89,7 +94,14 @@ class FrontController extends Controller
             'name' => 'required|string|max:255',
             'dni' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'number' => 'required|integer',
+            'number' => [
+                'required',
+                'string',
+                'regex:/^\d{1,5}$/',
+                Rule::unique('players')->where(function ($query) use ($request) {
+                    return $query->where('team_id', $request->team_id);
+                }),
+            ],
             'photo' => 'nullable|image|max:2048',
             'team_id' => 'required|exists:teams,id',
             'tournament_id' => 'required|exists:tournaments,id',

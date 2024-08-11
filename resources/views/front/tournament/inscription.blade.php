@@ -22,7 +22,9 @@
                             <select name="tournament_id" id="tournament_id" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                                 <option value="">Selecciona un Torneo</option>
                                 @foreach($tournaments as $tournament)
-                                    <option value="{{ $tournament->id }}">{{ $tournament->name }}</option>
+                                    <option value="{{ $tournament->id }}" {{ old('tournament_id') == $tournament->id ? 'selected' : '' }}>
+                                        {{ $tournament->name }}
+                                    </option>
                                 @endforeach
                             </select>
                             @error('tournament_id')
@@ -40,54 +42,39 @@
                         </div>
                         <div class="form-group">
                             <label for="name">Nombre</label>
-                            <input type="text" name="name" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                             @error('name')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="dni">DNI/Documento</label>
-                            <input type="text" name="dni" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            <input type="text" name="dni" class="form-control" value="{{ old('dni') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                             @error('dni')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        {{-- <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" name="email" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                            @error('email')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        {{-- Otros campos omitidos --}}
                         <div class="form-group">
-                            <label for="password">Contraseña</label>
-                            <input type="password" name="password" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                            @error('password')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="password_confirmation">Confirmar Contraseña</label>
-                            <input type="password" name="password_confirmation" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                            @error('password_confirmation')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-                        <div class="form-group">
-                            <label for="position">Selecciona el Equipo</label>
-                            <select name="position" id="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                                <option value="Arquero">Arquero (ARQ)</option>
-                                <option value="Defensa">Defensa (DF)</option>
-                                <option value="Medio Centro">Medio Centro (MC)</option>
-                                <option value="Delantero">Delantero (D)</option>
-                            </select>
+                            <x-adminlte-select name="position" label="Vehicle" label-class="text-lightblue"
+                                igroup-size="lg">
+                                <x-slot name="prependSlot">
+                                    <div class="input-group-text bg-gradient-info">
+                                        <i class="fas fa-car-side"></i>
+                                    </div>
+                                </x-slot>
+                                <option value="Arquero" {{ old('position') == 'Arquero' ? 'selected' : '' }}>Arquero (ARQ)</option>
+                                <option value="Defensa" {{ old('position') == 'Defensa' ? 'selected' : '' }}>Defensa (DF)</option>
+                                <option value="Medio Centro" {{ old('position') == 'Medio Centro' ? 'selected' : '' }}>Medio Centro (MC)</option>
+                                <option value="Delantero" {{ old('position') == 'Delantero' ? 'selected' : '' }}>Delantero (D)</option>
+                            </x-adminlte-select>
                             @error('position')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="number">Número Camiseta</label>
-                            <input type="number" name="number" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            <input type="number" name="number" class="form-control" value="{{ old('number') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                             @error('number')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -104,6 +91,7 @@
                         </div>
                     </form>
                 </div>
+                                
                 <div class="col-md-6">
                     <h3 class="mb-3">Información del Torneo</h3>
                     <div id="tournament_info" style="display: none;">
