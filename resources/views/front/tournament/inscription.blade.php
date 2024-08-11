@@ -56,18 +56,13 @@
                         </div>
                         {{-- Otros campos omitidos --}}
                         <div class="form-group">
-                            <x-adminlte-select name="position" label="Vehicle" label-class="text-lightblue"
-                                igroup-size="lg">
-                                <x-slot name="prependSlot">
-                                    <div class="input-group-text bg-gradient-info">
-                                        <i class="fas fa-car-side"></i>
-                                    </div>
-                                </x-slot>
+                            <label for="position">Selecciona la Posición</label>
+                            <select name="position" id="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                                 <option value="Arquero" {{ old('position') == 'Arquero' ? 'selected' : '' }}>Arquero (ARQ)</option>
                                 <option value="Defensa" {{ old('position') == 'Defensa' ? 'selected' : '' }}>Defensa (DF)</option>
                                 <option value="Medio Centro" {{ old('position') == 'Medio Centro' ? 'selected' : '' }}>Medio Centro (MC)</option>
                                 <option value="Delantero" {{ old('position') == 'Delantero' ? 'selected' : '' }}>Delantero (D)</option>
-                            </x-adminlte-select>
+                            </select>
                             @error('position')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
