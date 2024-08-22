@@ -67,28 +67,32 @@ class FrontController extends Controller
                 return [$position->points, $position->goal_difference, $position->goals_for];
             });
         }
-            // Obtener los jugadores con la suma de goles
+       
+        // Obtener los jugadores con la suma de goles mayores a 0
         $topScorers = PlayerFixtureEvent::where('event_type', 'goal')
             ->select('player_id', DB::raw('SUM(quantity) as goals'))
             ->groupBy('player_id')
+            ->having('goals', '>', 0)
             ->orderBy('goals', 'desc')
-            ->with('player.user')
+            ->with('player.user', 'player.team')
             ->get();
 
-        // Obtener los jugadores con la suma de tarjetas amarillas y rojas
+        // Obtener los jugadores con la suma de tarjetas amarillas
         $yellowCards = PlayerFixtureEvent::where('event_type', 'yellow_card')
             ->select('player_id', DB::raw('SUM(quantity) as yellow_cards'))
             ->groupBy('player_id')
             ->orderBy('yellow_cards', 'desc')
-            ->with('player.user')
+            ->with('player.user', 'player.team')
             ->get();
 
+        // Obtener los jugadores con la suma de tarjetas rojas
         $redCards = PlayerFixtureEvent::where('event_type', 'red_card')
             ->select('player_id', DB::raw('SUM(quantity) as red_cards'))
             ->groupBy('player_id')
             ->orderBy('red_cards', 'desc')
-            ->with('player.user')
+            ->with('player.user', 'player.team')
             ->get();
+
     
         return view('front.tournament.index', compact('tournaments', 'fixtures', 'filterDate', 'dates','topScorers', 'yellowCards', 'redCards'));
     }
