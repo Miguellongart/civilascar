@@ -90,29 +90,38 @@ class FixtureController extends Controller
                 $eventType = null;
                 $quantity = null;
 
-                if (!is_null($eventData['goals'])) {
+                if (!empty($eventData['goals']) && $eventData['goals'] > 0) {
                     $eventType = 'goal';
                     $quantity = $eventData['goals'];
-                } elseif (!is_null($eventData['yellow_cards'])) {
+                } elseif (!empty($eventData['yellow_cards']) && $eventData['yellow_cards'] > 0) {
                     $eventType = 'yellow_card';
                     $quantity = $eventData['yellow_cards'];
-                } elseif (!is_null($eventData['red_cards'])) {
+                } elseif (!empty($eventData['red_cards']) && $eventData['red_cards'] > 0) {
                     $eventType = 'red_card';
                     $quantity = $eventData['red_cards'];
                 }
 
-                // Si se identificó un evento válido, guardarlo
-                if ($eventType && $quantity !== null) {
+                // Si se identificó un evento válido y cantidad mayor que 0, proceder con la actualización/creación
+                if ($eventType && $quantity !== null && $quantity > 0) {
                     PlayerFixtureEvent::updateOrCreate(
-                        ['id' => $eventId, 'fixture_id' => $fixture->id],
                         [
+                            'fixture_id' => $fixture->id,
                             'player_id' => $eventData['player_id'],
                             'event_type' => $eventType,
+                        ],
+                        [
                             'minute' => $eventData['minute'],
                             'quantity' => $quantity,
                             'comment' => $eventData['comment'] ?? '',
                         ]
                     );
+                } else {
+                    // Si el evento existe y tiene cantidad 0, eliminarlo
+                    PlayerFixtureEvent::where([
+                        ['fixture_id', '=', $fixture->id],
+                        ['player_id', '=', $eventData['player_id']],
+                        ['event_type', '=', $eventType],
+                    ])->delete();
                 }
             }
         }
