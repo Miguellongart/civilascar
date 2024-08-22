@@ -15,8 +15,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'dni',
         'password',
+        'dni',
+        'document',
+        'neighborhood',
+        'parent_document_path',
     ];
 
     protected $hidden = [
@@ -40,5 +43,15 @@ class User extends Authenticatable
     public function players()
     {
         return $this->hasMany(Player::class);
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Children::class, 'user_id');
+    }
+
+    public function guardians()
+    {
+        return $this->hasMany(Guardian::class, 'user_id');
     }
 }

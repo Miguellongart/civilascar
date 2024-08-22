@@ -14,8 +14,10 @@ class PlayerFixtureEvent extends Model
         'player_id',
         'event_type',
         'minute',
-        'comment'
+        'comment',
+        'quantity'  // Agregar este campo
     ];
+    
 
     public function fixture()
     {

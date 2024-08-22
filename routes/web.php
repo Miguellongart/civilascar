@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\FixtureController;
+use App\Http\Controllers\Admin\LittleSchoolController;
+use App\Http\Controllers\Admin\PhotoGalleryController;
 use App\Http\Controllers\Admin\PlayerController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\TournamentController;
@@ -24,6 +26,8 @@ Route::get('/tournament/{tournamentId}', [FrontController::class, 'getinfoByTour
 
 Route::get('/inscripcion/liga-cafetera-2024-2', [FrontController::class, 'inscription'])->name('front.inscription');
 // Route::get('/contacto', [FrontController::class, 'Contact'])->name('front.contact');
+Route::get('/register', [FrontController::class, 'showForm'])->name('registration.form');
+Route::post('/registerLitle', [FrontController::class, 'register'])->name('registration.register');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -70,6 +74,18 @@ Route::middleware('auth')->group(function () {
     Route::put('player/{id}', [PlayerController::class, 'update'])->name('admin.player.update');
     Route::delete('player/{id}', [PlayerController::class, 'destroy'])->name('admin.player.destroy');
 
+    Route::get('tournaments/{tournamentId}/galleries', [PhotoGalleryController::class, 'index'])->name('admin.gallery.index');
+    Route::get('tournaments/{tournamentId}/galleries/create', [PhotoGalleryController::class, 'create'])->name('admin.gallery.create');
+    Route::post('tournaments/{tournamentId}/galleries', [PhotoGalleryController::class, 'store'])->name('admin.gallery.store');
+    Route::delete('galleries/{id}', [PhotoGalleryController::class, 'destroy'])->name('admin.gallery.destroy');
+
+    Route::get('littleSchool', [LittleSchoolController::class, 'index'])->name('admin.littleSchool.index');
+    Route::get('littleSchool/create', [LittleSchoolController::class, 'create'])->name('admin.littleSchool.create');
+    Route::post('littleSchool', [LittleSchoolController::class, 'store'])->name('admin.littleSchool.store');
+    Route::get('littleSchool/{id}', [LittleSchoolController::class, 'show'])->name('admin.littleSchool.show');
+    Route::get('littleSchool/{id}/edit', [LittleSchoolController::class, 'edit'])->name('admin.littleSchool.edit');
+    Route::put('littleSchool/{id}', [LittleSchoolController::class, 'update'])->name('admin.littleSchool.update');
+    Route::delete('littleSchool/{id}', [LittleSchoolController::class, 'destroy'])->name('admin.littleSchool.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {

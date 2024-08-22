@@ -35,12 +35,7 @@
                     <div class="row mb-6">
                         <!-- Columna izquierda para banners de publicidad -->
                         <div class="col-md-2">
-                            {{-- <div class="banner">
-                                <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
-                            </div>
-                            <div class="banner mt-4">
-                                <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
-                            </div> --}}
+                            {{-- Publicidad --}}
                         </div>
                 
                         <!-- Contenido principal -->
@@ -58,18 +53,31 @@
                                         </button>
                                     </div>
                                     <div class="col-auto">
-                                        <form method="GET" action="{{ route('front.tournament', $tournament->id) }}" class="form-inline">
-                                            <div class="form-group">
-                                                <label for="filter_date" class="sr-only">Filtrar por fecha</label>
-                                                <input type="date" name="filter_date" id="filter_date" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" value="{{ $filterDate }}">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary ml-2">Filtrar</button>
-                                        </form>
+                                        <button type="button" class="btn btn-primary" id="topScorersButton">
+                                            Goleadores
+                                        </button>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-primary" id="cardsButton">
+                                            Tarjetas Acumuladas
+                                        </button>
                                     </div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <div class="col-auto">
+                                    <form method="GET" action="{{ route('front.tournament', $tournament->id) }}" class="form-inline">
+                                        <div class="form-group">
+                                            <label for="filter_date" class="sr-only">Filtrar por fecha</label>
+                                            <input type="date" name="filter_date" id="filter_date" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" value="{{ $filterDate }}">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary ml-2">Filtrar</button>
+                                    </form>
+                                </div>s
+                            </div>
                 
-                            <div id="positionsSection" class="content-section" style="display: block;">
+                            <!-- Tabla de Posiciones -->
+                            <div id="positionsSection" class="content-section">
                                 <h4>Tabla de Posiciones</h4>
                                 <table class="table table-striped">
                                     <thead>
@@ -102,7 +110,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                
+
+                            <!-- Fixtures -->
                             <div id="fixturesSection" class="content-section" style="display: none;">
                                 <h4>Fixtures</h4>
                                 <div class="fixtures">
@@ -111,7 +120,9 @@
                                             <div class="row no-gutters">
                                                 <div class="col-md-12">
                                                     <div class="card-body p-2">
-                                                        <h6 class="card-title mb-1">{{ \Carbon\Carbon::parse($fixture->match_date)->format('d/m/Y H:i') }}</h6>
+                                                        <h6 class="card-title mb-1">
+                                                            {{ \Carbon\Carbon::parse($fixture->match_date)->format('d/m/Y H:i') }}
+                                                        </h6>
                                                         <p class="card-text mb-1">
                                                             <span class="team" style="color: #3e0171">{{ $fixture->homeTeam->name }}</span>
                                                             <span class="score" style="color: #000">{{ $fixture->home_team_score ?? '0' }}</span>
@@ -128,6 +139,43 @@
                                                                 @endif
                                                             </small>
                                                         </p>
+                            
+                                                        <!-- Botón para desplegar eventos -->
+                                                        @if ($fixture->playerEvents->isNotEmpty())
+                                                            <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#events_{{ $fixture->id }}" aria-expanded="false" aria-controls="events_{{ $fixture->id }}">
+                                                                Mostrar Eventos
+                                                            </button>
+                            
+                                                            <!-- Eventos en dos columnas, con collapsible -->
+                                                            <div class="collapse mt-2" id="events_{{ $fixture->id }}">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <h6 class="card-subtitle mb-1">Equipo Local:</h6>
+                                                                        <ul class="list-unstyled">
+                                                                            @foreach ($fixture->playerEvents->where('player.team_id', $fixture->home_team_id) as $event)
+                                                                                <li>
+                                                                                    {{ $event->player->user->name }} - 
+                                                                                    {{ ucfirst(str_replace('_', ' ', $event->event_type)) }}: 
+                                                                                    {{ $event->quantity }}
+                                                                                </li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <h6 class="card-subtitle mb-1">Equipo Visitante:</h6>
+                                                                        <ul class="list-unstyled">
+                                                                            @foreach ($fixture->playerEvents->where('player.team_id', $fixture->away_team_id) as $event)
+                                                                                <li>
+                                                                                    {{ $event->player->user->name }} - 
+                                                                                    {{ ucfirst(str_replace('_', ' ', $event->event_type)) }}: 
+                                                                                    {{ $event->quantity }}
+                                                                                </li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -135,16 +183,78 @@
                                     @endforeach
                                 </div>
                             </div>
+
+                            <!-- Tabla de Goleadores -->
+                            <div id="topScorersSection" class="content-section" style="display: none;">
+                                <h4>Goleadores</h4>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Jugador</th>
+                                            <th>Goles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($topScorers as $scorer)
+                                            <tr>
+                                                <td>{{ $scorer->player->user->name }}</td>
+                                                <td>{{ $scorer->goals }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Tabla de Tarjetas Acumuladas -->
+                            <div id="cardsSection" class="content-section" style="display: none;">
+                                <h4>Tarjetas Acumuladas</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Tarjetas Amarillas</h5>
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Jugador</th>
+                                                    <th>Tarjetas Amarillas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($yellowCards as $yellowCard)
+                                                    <tr>
+                                                        <td>{{ $yellowCard->player->user->name }}</td>
+                                                        <td>{{ $yellowCard->yellow_cards }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Tarjetas Rojas</h5>
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Jugador</th>
+                                                    <th>Tarjetas Rojas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($redCards as $redCard)
+                                                    <tr>
+                                                        <td>{{ $redCard->player->user->name }}</td>
+                                                        <td>{{ $redCard->red_cards }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                 
                         <!-- Columna derecha para banners de publicidad -->
                         <div class="col-md-2">
-                            {{-- <div class="banner">
-                                <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
-                            </div>
-                            <div class="banner mt-4">
-                                <img src="{{ asset('front/images/banners/publicidad.png') }}" alt="Publicidad" class="img-fluid">
-                            </div> --}}
+                            {{-- Publicidad --}}
                         </div>
                     </div>
                 </div>
@@ -157,21 +267,47 @@
         document.addEventListener('DOMContentLoaded', function () {
             var positionsButton = document.getElementById('positionsButton');
             var fixturesButton = document.getElementById('fixturesButton');
+            var topScorersButton = document.getElementById('topScorersButton');
+            var cardsButton = document.getElementById('cardsButton');
+
             var positionsSection = document.getElementById('positionsSection');
             var fixturesSection = document.getElementById('fixturesSection');
+            var topScorersSection = document.getElementById('topScorersSection');
+            var cardsSection = document.getElementById('cardsSection');
 
-            // Mostrar la tabla de posiciones por defecto y ocultar los fixtures
+            // Inicialmente mostrar la tabla de posiciones y ocultar las demás
             positionsSection.style.display = 'block';
             fixturesSection.style.display = 'none';
-            console.log(positionsButton)
+            topScorersSection.style.display = 'none';
+            cardsSection.style.display = 'none';
+
+            // Mostrar/Ocultar secciones al hacer clic en los botones
             positionsButton.addEventListener('click', function () {
                 positionsSection.style.display = 'block';
                 fixturesSection.style.display = 'none';
+                topScorersSection.style.display = 'none';
+                cardsSection.style.display = 'none';
             });
 
             fixturesButton.addEventListener('click', function () {
                 positionsSection.style.display = 'none';
                 fixturesSection.style.display = 'block';
+                topScorersSection.style.display = 'none';
+                cardsSection.style.display = 'none';
+            });
+
+            topScorersButton.addEventListener('click', function () {
+                positionsSection.style.display = 'none';
+                fixturesSection.style.display = 'none';
+                topScorersSection.style.display = 'block';
+                cardsSection.style.display = 'none';
+            });
+
+            cardsButton.addEventListener('click', function () {
+                positionsSection.style.display = 'none';
+                fixturesSection.style.display = 'none';
+                topScorersSection.style.display = 'none';
+                cardsSection.style.display = 'block';
             });
         });
     </script>

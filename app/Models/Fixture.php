@@ -19,7 +19,8 @@ class Fixture extends Model
         'away_team_score',
         'sport',
         'periods',
-        'period_times'
+        'period_times',
+        'won_by_forfeit'
     ];
 
     protected $casts = [

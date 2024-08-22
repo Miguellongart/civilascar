@@ -16,37 +16,156 @@
     </div>
   
     <section class="ftco-section">
-    	<div class="container">
-    		<div class="row">
-                <div class="col-md-4 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 d-flex services p-3 py-4 d-block">
-                    <div class="icon d-flex mb-3"><span class="flaticon-donation-1"></span></div>
-                    <div class="media-body pl-4">
-                        <h3 class="heading">Make Donation</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic.</p>
+        <div class="container">
+            <div class="row">
+                <form action="{{ route('registration.register') }}" method="POST" enctype="multipart/form-data" class="volunter-form">
+                    @csrf
+                
+                    <!-- Datos del padre/madre -->
+                    <h3>Datos del Padre o Madre</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="parent_name">Nombre del Padre o Madre</label>
+                                <input type="text" id="parent_name" name="parent_name" class="form-control" value="{{ old('parent_name') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                @error('parent_name')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email">Correo</label>
+                                <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                @error('email')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
-                    </div>      
-                </div>
-                <div class="col-md-4 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 d-flex services p-3 py-4 d-block">
-                    <div class="icon d-flex mb-3"><span class="flaticon-charity"></span></div>
-                    <div class="media-body pl-4">
-                        <h3 class="heading">Become A Volunteer</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic.</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="document">Documento</label>
+                                <input type="text" id="document" name="document" class="form-control" value="{{ old('document') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                @error('document')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="neighborhood">Barrio</label>
+                                <input type="text" id="neighborhood" name="neighborhood" class="form-control" value="{{ old('neighborhood') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                @error('neighborhood')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
-                    </div>      
-                </div>
-                <div class="col-md-4 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 d-flex services p-3 py-4 d-block">
-                    <div class="icon d-flex mb-3"><span class="flaticon-donation"></span></div>
-                    <div class="media-body pl-4">
-                        <h3 class="heading">Sponsorship</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic.</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="parent_document">Subir Documento del Padre o Madre</label>
+                                <input type="file" id="parent_document" name="parent_document" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                @error('parent_document')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
-                    </div>    
-                </div>
+                
+                    <!-- Datos de los hijos -->
+                    <h3>Datos de los Hijos</h3>
+                    <div id="children-container">
+                        <div class="child">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="children[0][name]">Nombre del Hijo</label>
+                                        <input type="text" name="children[0][name]" class="form-control" value="{{ old('children.0.name') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('children.0.name')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="children[0][age]">Edad</label>
+                                        <input type="number" name="children[0][age]" class="form-control" value="{{ old('children.0.age') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('children.0.age')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="children[0][document]">Documento</label>
+                                        <input type="text" name="children[0][document]" class="form-control" value="{{ old('children.0.document') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('children.0.document')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="children[0][uniform_size]">Talle de Uniforme</label>
+                                        <input type="text" name="children[0][uniform_size]" class="form-control" value="{{ old('children.0.uniform_size') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('children.0.uniform_size')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-child" class="btn btn-secondary">Agregar Otro Hijo</button>
+                
+                    <!-- Datos de los responsables adicionales -->
+                    <h3>Persona Responsable Adicional</h3>
+                    <div id="guardians-container">
+                        <div class="guardian">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="guardians[0][name]">Nombre del Responsable</label>
+                                        <input type="text" name="guardians[0][name]" class="form-control" value="{{ old('guardians.0.name') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('guardians.0.name')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="guardians[0][relationship]">Relación</label>
+                                        <input type="text" name="guardians[0][relationship]" class="form-control" value="{{ old('guardians.0.relationship') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('guardians.0.relationship')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="guardians[0][document]">Documento</label>
+                                        <input type="text" name="guardians[0][document]" class="form-control" value="{{ old('guardians.0.document') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                                        @error('guardians.0.document')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-guardian" class="btn btn-secondary">Agregar Otro Responsable</button>
+                
+                    <button type="submit" class="btn btn-primary mt-3">Registrar</button>
+                </form>
             </div>
-    	</div>
+        </div>
     </section>
 
     <section class="ftco-section bg-light">
@@ -150,36 +269,66 @@
     	</div>
     </section>
 
+    @push('guest_js')
+        <script>
+            document.getElementById('add-child').addEventListener('click', function () {
+                const container = document.getElementById('children-container');
+                const index = container.children.length;
+                const childDiv = document.createElement('div');
+                childDiv.classList.add('child');
+                childDiv.innerHTML = `
 
-		
-    <section class="ftco-section-3 img" style="background-image: url(front/images/bg_3.jpg);">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="row d-md-flex">
-                <div class="col-md-6 d-flex ftco-animate">
-                    <video  src="{{ asset('front/videos/videoinfancias.mp4') }}" autoplay>
-                        Tu navegador no admite el elemento <code>video</code>.
-                    </video>
-                    {{-- <div class="img img-2 align-self-stretch" style="background-image: url('{{ asset('front/videos/videoinfancias.mp4') }}');"></div> --}}
+                        <div class="child">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="children[${index}][name]">Nombre del Hijo</label>
+                            <input type="text" name="children[${index}][name]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="children[${index}][age]">Edad</label>
+                            <input type="number" name="children[${index}][age]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 volunteer pl-md-5 ftco-animate">
-                    <h3 class="mb-3">Be a volunteer</h3>
-                    <form action="#" class="volunter-form">
+                <div class="row">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Your Name">
+                            <label for="children[${index}][uniform_size]">Talle de Uniforme</label>
+                            <input type="text" name="children[${index}][uniform_size]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                         </div>
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Your Email">
+                            <label for="children[${index}][document]">Documento</label>
+                            <input type="text" name="children[${index}][document]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                         </div>
-                        <div class="form-group">
-                            <textarea name="" id="" cols="30" rows="3" class="form-control" placeholder="Message"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <input type="submit" value="Send Message" class="btn btn-white py-3 px-5">
-                        </div>
-                    </form>
-                </div>    			
-            </div>
-        </div>
-    </section>
+                    </div>
+                </div>
+                </div>
+                `;
+                container.appendChild(childDiv);
+            });
+        
+            document.getElementById('add-guardian').addEventListener('click', function () {
+                const container = document.getElementById('guardians-container');
+                const index = container.children.length;
+                const guardianDiv = document.createElement('div');
+                guardianDiv.classList.add('guardian');
+                guardianDiv.innerHTML = `
+                    <div class="form-group">
+                        <label for="guardians[${index}][name]">Nombre del Responsable</label>
+                        <input type="text" name="guardians[${index}][name]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardians[${index}][relationship]">Relación</label>
+                        <input type="text" name="guardians[${index}][relationship]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardians[${index}][document]">Documento</label>
+                        <input type="text" name="guardians[${index}][document]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                    </div>
+                `;
+                container.appendChild(guardianDiv);
+            });
+        </script>
+    @endpush
 </x-guest-layout>

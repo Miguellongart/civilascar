@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class TournamentController extends Controller
 {
-    
     public function index()
     {
         $heads = [
@@ -18,8 +17,7 @@ class TournamentController extends Controller
             ['label' => 'Tipo', 'width' => 20],
             ['label' => 'Inicio', 'width' => 20],
             ['label' => 'Fin', 'width' => 20],
-            ['label' => 'Logo', 'width' => 20],
-            ['label' => 'Acciones', 'no-export' => true, 'width' => 20],
+            ['label' => 'Acciones', 'no-export' => true, 'width' => 40],
         ];
 
         $tournaments = Tournament::all();
@@ -31,6 +29,7 @@ class TournamentController extends Controller
                 $btnDetails = '';
                 $btnAddTeams = '';
                 $btnFixtures = '';
+                $btnGallery = ''; // Nueva variable para el botón de galería
 
                 if (auth()->user()->can('admin.tournament.edit')) {
                     $btnEdit = '<a href="' . route('admin.tournament.edit', $tournament) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
@@ -48,10 +47,14 @@ class TournamentController extends Controller
                                 </a>';
                 }
                 if (auth()->user()->can('admin.fixture.index')) {
-                $btnFixtures = '<a href="' . route('admin.fixture.index', $tournament) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="View Fixtures">
-                                <i class="fa fa-lg fa-fw fa-calendar-alt"></i>
-                            </a>';
+                    $btnFixtures = '<a href="' . route('admin.fixture.index', $tournament) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="View Fixtures">
+                                    <i class="fa fa-lg fa-fw fa-calendar-alt"></i>
+                                </a>';
                 }
+
+                    $btnGallery = '<a href="' . route('admin.gallery.index', $tournament) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="View Gallery">
+                                    <i class="fas fa-photo-video"></i>
+                                </a>';
 
                 $logo = $tournament->logo ? '<img src="' . asset('storage/' . $tournament->logo) . '" alt="Logo" height="50">' : 'No logo';
 
@@ -61,8 +64,7 @@ class TournamentController extends Controller
                     $tournament->type,
                     $tournament->start_date,
                     $tournament->end_date,
-                    $logo,
-                    '<nobr>' . $btnEdit . $btnDelete . $btnDetails . $btnAddTeams . $btnFixtures . '</nobr>'
+                    '<nobr>' . $btnEdit . $btnDelete . $btnDetails . $btnAddTeams . $btnFixtures . $btnGallery . '</nobr>'
                 ];
             })->toArray(),
             'order' => [[1, 'asc']],
@@ -75,7 +77,6 @@ class TournamentController extends Controller
 
         return view('admin.tournament.index', compact('heads', 'config', 'subtitle', 'content_header_title', 'content_header_subtitle'));
     }
-
 
     public function addTeams(Tournament $tournament)
     {

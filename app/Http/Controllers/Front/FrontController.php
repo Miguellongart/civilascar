@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Fixture;
 use App\Models\Player;
+use App\Models\PlayerFixtureEvent;
 use App\Models\Team;
 use App\Models\Tournament;
 use App\Models\User;
@@ -66,8 +67,30 @@ class FrontController extends Controller
                 return [$position->points, $position->goal_difference, $position->goals_for];
             });
         }
+            // Obtener los jugadores con la suma de goles
+        $topScorers = PlayerFixtureEvent::where('event_type', 'goal')
+            ->select('player_id', DB::raw('SUM(quantity) as goals'))
+            ->groupBy('player_id')
+            ->orderBy('goals', 'desc')
+            ->with('player.user')
+            ->get();
+
+        // Obtener los jugadores con la suma de tarjetas amarillas y rojas
+        $yellowCards = PlayerFixtureEvent::where('event_type', 'yellow_card')
+            ->select('player_id', DB::raw('SUM(quantity) as yellow_cards'))
+            ->groupBy('player_id')
+            ->orderBy('yellow_cards', 'desc')
+            ->with('player.user')
+            ->get();
+
+        $redCards = PlayerFixtureEvent::where('event_type', 'red_card')
+            ->select('player_id', DB::raw('SUM(quantity) as red_cards'))
+            ->groupBy('player_id')
+            ->orderBy('red_cards', 'desc')
+            ->with('player.user')
+            ->get();
     
-        return view('front.tournament.index', compact('tournaments', 'fixtures', 'filterDate', 'dates'));
+        return view('front.tournament.index', compact('tournaments', 'fixtures', 'filterDate', 'dates','topScorers', 'yellowCards', 'redCards'));
     }
 
     public function inscription()
@@ -161,5 +184,71 @@ class FrontController extends Controller
             Alert::success('Éxito', 'Nuevo usuario registrado y equipo inscrito exitosamente en el torneo.');
             return redirect()->route('front.inscription');
         }
+    }
+
+    public function register(Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'parent_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'neighborhood' => 'required|string|max:255',
+            'parent_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'children.*.name' => 'required|string|max:255',
+            'children.*.age' => 'required|integer|min:1|max:18',
+            'children.*.uniform_size' => 'required|string|max:10',
+            'guardians.*.name' => 'required|string|max:255',
+            'guardians.*.relationship' => 'required|string|max:255',
+            'guardians.*.document' => 'required|string|max:255',
+        ]);
+    
+        // Verificar si el DNI ya existe en la base de datos
+        $dni = $request->input('parent_document');
+        $existingUser = User::where('dni', $dni)->first();
+        
+        if ($existingUser) {
+            // Si el usuario ya existe, actualizar datos faltantes
+            $existingUser->update([
+                'name' => $existingUser->name ?: $request->input('parent_name'),
+                'email' => $existingUser->email ?: $request->input('email'),
+                'password' => $existingUser->password ?: Hash::make($request->input('password')),
+                'document' => $existingUser->document ?: $request->input('document'),
+                'neighborhood' => $existingUser->neighborhood ?: $request->input('neighborhood'),
+                'parent_document_path' => $existingUser->parent_document_path ?: ($request->file('parent_document') ? $request->file('parent_document')->store('documents/parents') : $existingUser->parent_document_path),
+            ]);
+    
+            $user = $existingUser;
+        } else {
+            // Crear un nuevo usuario si no existe
+            $user = User::create([
+                'name' => $request->input('parent_name'),
+                'email' => $request->input('email'),
+                'password' => Hash::make($request->input('password')),
+                'document' => $request->input('document'),
+                'dni' => $request->input('document'),
+                'neighborhood' => $request->input('neighborhood'),
+                'parent_document_path' => $request->file('parent_document')->store('documents/parents'),
+            ]);
+        }
+
+        foreach ($request->input('children') as $index => $childData) {    
+            $user->children()->create([
+                'name' => $childData['name'],
+                'age' => $childData['age'],
+                'uniform_size' => $childData['uniform_size'],
+                'document' => $childData['document'],
+            ]);
+        }
+    
+        foreach ($request->input('guardians') as $guardianData) {
+            $user->guardians()->create([
+                'name' => $guardianData['name'],
+                'relationship' => $guardianData['relationship'],
+                'document' => $guardianData['document'],
+            ]);
+        }
+        // Autenticar al usuario
+            Alert::success('Éxito', 'Nuevo Registro de integrante Escuelita.');
+            return redirect()->route('front.school');
     }
 }
