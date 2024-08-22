@@ -191,6 +191,7 @@
                                     <thead>
                                         <tr>
                                             <th>Jugador</th>
+                                            <th>Equipo</th>
                                             <th>Goles</th>
                                         </tr>
                                     </thead>
@@ -198,6 +199,7 @@
                                         @foreach($topScorers as $scorer)
                                             <tr>
                                                 <td>{{ $scorer->player->user->name }}</td>
+                                                <td>{{ $scorer->player->team->name }}</td>
                                                 <td>{{ $scorer->goals }}</td>
                                             </tr>
                                         @endforeach
@@ -215,6 +217,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Jugador</th>
+                                                    <th>Equipo</th>
                                                     <th>Tarjetas Amarillas</th>
                                                 </tr>
                                             </thead>
@@ -222,6 +225,7 @@
                                                 @foreach($yellowCards as $yellowCard)
                                                     <tr>
                                                         <td>{{ $yellowCard->player->user->name }}</td>
+                                                        <td>{{ $yellowCard->player->team->name }}</td>
                                                         <td>{{ $yellowCard->yellow_cards }}</td>
                                                     </tr>
                                                 @endforeach
@@ -234,6 +238,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Jugador</th>
+                                                    <th>Equipo</th>
                                                     <th>Tarjetas Rojas</th>
                                                 </tr>
                                             </thead>
@@ -241,6 +246,7 @@
                                                 @foreach($redCards as $redCard)
                                                     <tr>
                                                         <td>{{ $redCard->player->user->name }}</td>
+                                                        <td>{{ $redCard->player->team->name }}</td>
                                                         <td>{{ $redCard->red_cards }}</td>
                                                     </tr>
                                                 @endforeach
