@@ -83,13 +83,12 @@ class FixtureController extends Controller
             foreach ($request->player_events as $eventId => $eventData) {
                 // Asegurar que 'minute' siempre tenga un valor
                 if (!isset($eventData['minute']) || $eventData['minute'] === null) {
-                    $eventData['minute'] = 0; // O el valor que consideres apropiado
+                    $eventData['minute'] = 0;
                 }
-
-                // Identificar el tipo de evento y su cantidad asociada
+    
                 $eventType = null;
                 $quantity = null;
-
+    
                 if (!empty($eventData['goals']) && $eventData['goals'] > 0) {
                     $eventType = 'goal';
                     $quantity = $eventData['goals'];
@@ -100,8 +99,7 @@ class FixtureController extends Controller
                     $eventType = 'red_card';
                     $quantity = $eventData['red_cards'];
                 }
-
-                // Si se identificó un evento válido y cantidad mayor que 0, proceder con la actualización/creación
+    
                 if ($eventType && $quantity !== null && $quantity > 0) {
                     PlayerFixtureEvent::updateOrCreate(
                         [
@@ -116,7 +114,6 @@ class FixtureController extends Controller
                         ]
                     );
                 } else {
-                    // Si el evento existe y tiene cantidad 0, eliminarlo
                     PlayerFixtureEvent::where([
                         ['fixture_id', '=', $fixture->id],
                         ['player_id', '=', $eventData['player_id']],
@@ -131,35 +128,18 @@ class FixtureController extends Controller
         
         return redirect()->route('admin.fixture.index', $fixture->tournament_id)->with('success', 'Fixture updated successfully');
     }
-
+    
     private function updatePositionTable(Fixture $previousFixture, Fixture $fixture)
     {
-        $homeTeamPosition = PositionTable::where('team_id', $fixture->home_team_id)->where('tournament_id', $fixture->tournament_id)->first();
-        $awayTeamPosition = PositionTable::where('team_id', $fixture->away_team_id)->where('tournament_id', $fixture->tournament_id)->first();
+        $homeTeamPosition = PositionTable::firstOrNew(['team_id' => $fixture->home_team_id, 'tournament_id' => $fixture->tournament_id]);
+        $awayTeamPosition = PositionTable::firstOrNew(['team_id' => $fixture->away_team_id, 'tournament_id' => $fixture->tournament_id]);
     
-        if (!$homeTeamPosition) {
-            $homeTeamPosition = new PositionTable([
-                'tournament_id' => $fixture->tournament_id,
-                'team_id' => $fixture->home_team_id,
-            ]);
-        }
-    
-        if (!$awayTeamPosition) {
-            $awayTeamPosition = new PositionTable([
-                'tournament_id' => $fixture->tournament_id,
-                'team_id' => $fixture->away_team_id,
-            ]);
-        }
-    
-        // Si el estado del fixture ha cambiado, actualizar las estadísticas
         if ($previousFixture->status == 'completed' && $fixture->status != 'completed') {
-            // Restar estadísticas previas
             $this->adjustTeamStats($homeTeamPosition, $previousFixture->home_team_score, $previousFixture->away_team_score, false);
             $this->adjustTeamStats($awayTeamPosition, $previousFixture->away_team_score, $previousFixture->home_team_score, false);
         }
     
-        if ($fixture->status == 'completed' && ($previousFixture->home_team_score != $fixture->home_team_score || $previousFixture->away_team_score != $fixture->away_team_score || $previousFixture->won_by_forfeit != $fixture->won_by_forfeit)) {
-            // Si el fixture se completó y los puntajes o el estado de ganar por mesa ha cambiado
+        if ($fixture->status == 'completed') {
             if ($fixture->won_by_forfeit) {
                 $this->assignForfeitWin($fixture, $homeTeamPosition, $awayTeamPosition);
             } else {
@@ -174,24 +154,18 @@ class FixtureController extends Controller
     
     private function assignForfeitWin(Fixture $fixture, PositionTable $homeTeamPosition, PositionTable $awayTeamPosition)
     {
-        // Determinar el equipo que debería ganar por mesa (el equipo que no incumplió las reglas)
-        $winningTeam = $fixture->home_team_score > $fixture->away_team_score ? $awayTeamPosition : $homeTeamPosition;
-        $losingTeam = $fixture->home_team_score > $fixture->away_team_score ? $homeTeamPosition : $awayTeamPosition;
+        $winningTeam = $fixture->home_team_score > $fixture->away_team_score ? $homeTeamPosition : $awayTeamPosition;
+        $losingTeam = $fixture->home_team_score > $fixture->away_team_score ? $awayTeamPosition : $homeTeamPosition;
     
-        // El equipo ganador por mesa obtiene 3 puntos y se cuenta como una victoria
         $winningTeam->won += 1;
         $winningTeam->points += 3;
-    
-        // El equipo que incumplió pierde, aunque los goles se mantienen
-        $losingTeam->lost += 1;
-    
-        // Asignar el partido como jugado para ambos equipos
         $winningTeam->played += 1;
+    
+        $losingTeam->lost += 1;
         $losingTeam->played += 1;
     
-        // Guardar las posiciones
-        $homeTeamPosition->save();
-        $awayTeamPosition->save();
+        $winningTeam->save();
+        $losingTeam->save();
     }
     
     private function adjustTeamStats(PositionTable $teamPosition, $goalsFor, $goalsAgainst, $isAdding)
@@ -213,5 +187,4 @@ class FixtureController extends Controller
             $teamPosition->points += 1 * $factor;
         }
     }
-    
 }

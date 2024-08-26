@@ -121,7 +121,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" id="add-child" class="btn btn-secondary">Agregar Otro Hijo</button>
+                    <button type="button" id="add-child" class="btn btn-danger">Agregar Otro Hijo</button>
                 
                     <!-- Datos de los responsables adicionales -->
                     <h3>Persona Responsable Adicional</h3>
@@ -160,7 +160,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" id="add-guardian" class="btn btn-secondary">Agregar Otro Responsable</button>
+                    <button type="button" id="add-guardian" class="btn btn-danger mt-3"">Agregar Otro Responsable</button>
                 
                     <button type="submit" class="btn btn-primary mt-3">Registrar</button>
                 </form>

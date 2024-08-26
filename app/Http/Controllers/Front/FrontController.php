@@ -197,7 +197,7 @@ class FrontController extends Controller
             'parent_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'neighborhood' => 'required|string|max:255',
-            'parent_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'parent_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'children.*.name' => 'required|string|max:255',
             'children.*.age' => 'required|integer|min:1|max:18',
             'children.*.uniform_size' => 'required|string|max:10',
@@ -207,7 +207,7 @@ class FrontController extends Controller
         ]);
     
         // Verificar si el DNI ya existe en la base de datos
-        $dni = $request->input('parent_document');
+        $dni = $request->input('document');
         $existingUser = User::where('dni', $dni)->first();
         
         if ($existingUser) {

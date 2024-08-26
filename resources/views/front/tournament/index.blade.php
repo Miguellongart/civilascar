@@ -73,7 +73,7 @@
                                         </div>
                                         <button type="submit" class="btn btn-primary ml-2">Filtrar</button>
                                     </form>
-                                </div>s
+                                </div>
                             </div>
                 
                             <!-- Tabla de Posiciones -->
