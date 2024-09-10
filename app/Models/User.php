@@ -47,11 +47,11 @@ class User extends Authenticatable
 
     public function children()
     {
-        return $this->hasMany(Children::class, 'user_id');
+        return $this->hasMany(Children::class);
     }
-
+    
     public function guardians()
     {
-        return $this->hasMany(Guardian::class, 'user_id');
+        return $this->hasMany(Guardian::class);
     }
 }

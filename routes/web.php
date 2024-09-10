@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.user.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.user.destroy');
 
+    Route::put('/users/rol/{rol}', [UserController::class, 'role'])->name('user.role');
+    Route::put('/users/perm/{permission}', [UserController::class, 'permission'])->name('user.permission');
+
     Route::get('tournament', [TournamentController::class, 'index'])->name('admin.tournament.index');
     Route::get('tournament/create', [TournamentController::class, 'create'])->name('admin.tournament.create');
     Route::post('tournament', [TournamentController::class, 'store'])->name('admin.tournament.store');

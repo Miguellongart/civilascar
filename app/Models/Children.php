@@ -13,6 +13,12 @@ class Children extends Model
 
     public function parent()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relación con los guardianes
+    public function guardians()
+    {
+        return $this->hasMany(Guardian::class);
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -84,10 +86,22 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::find($id);
+        $idUserLogueado = Auth()->id();
+        $userlogueado = User::find($idUserLogueado);
+        $user = User::findOrFail($id);
         $subtitle = 'Informacion de '.$user->name;
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Informacion de '.$user->name;
+        
+        return view('admin.user.show', [
+            'user' => $user,
+            'roles' => $userlogueado->hasRole('admin') ? Role::orderBy('name')->get() : Role::where('name','!=', 'admin')->orderBy('name')->get(),
+            'permissions' => Permission::orderBy('name')->get(),
+            'subtitle' => $subtitle,
+            'content_header_title' => $content_header_title,
+            'content_header_subtitle' => $content_header_subtitle
+        ]);
+
         return view('admin.user.show', compact('user', 'subtitle', 'content_header_title', 'content_header_subtitle'));
     }
 
@@ -126,6 +140,25 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        dd($id);
+        $row = User::findOrFail($id);
+        $row->delete();
+        return redirect()->route('admin.user.index')->with('success', 'User updated successfully.');
+    }
+
+
+    public function role(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->roles()->sync($request->roles);
+
+        return redirect()->route('admin.users.index', $user->id)->with('success', 'Actualizado con Exito');
+    }
+
+    public function permission(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->givePermissionTo($request->permissions);
+
+        return redirect()->route('admin.users.index', $user->id)->with('success', 'Actualizado con Exito');
     }
 }

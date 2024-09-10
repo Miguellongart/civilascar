@@ -197,7 +197,7 @@ class FrontController extends Controller
             'parent_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'neighborhood' => 'required|string|max:255',
-            'parent_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'parent_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png,heic|max:10240',
             'children.*.name' => 'required|string|max:255',
             'children.*.age' => 'required|integer|min:1|max:18',
             'children.*.uniform_size' => 'required|string|max:10',
@@ -252,7 +252,7 @@ class FrontController extends Controller
             ]);
         }
         // Autenticar al usuario
-            Alert::success('Éxito', 'Nuevo Registro de integrante Escuelita.');
-            return redirect()->route('front.school');
+        Alert::success('Éxito', 'Nuevo Registro de integrante Escuelita.');
+        return redirect()->route('front.school');
     }
 }

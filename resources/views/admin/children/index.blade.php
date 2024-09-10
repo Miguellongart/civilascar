@@ -30,14 +30,17 @@
                         </td>
                         <td>
                             @canany('admin.littleSchool.show')
-                                <a href="{{ route('admin.littleSchool.show', $item->id) }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Ver Detalles">
-                                    <i class="fa fa-lg fa-fw fa-eye"></i>
-                                </a>
+                                <a href="{{ route('admin.littleSchool.show', $item->id) }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Ver Detalles"><i class="fa fa-lg fa-fw fa-eye"></i></a>
                             @endcanany
                             @canany('admin.littleSchool.edit')
-                                <a href="{{ route('admin.littleSchool.edit', $item->id) }}" class="btn btn-xs btn-default text-primary mx-1 shadow" title="Editar">
-                                    <i class="fa fa-lg fa-fw fa-pen"></i>
-                                </a>
+                                <a href="{{ route('admin.littleSchool.edit', $item->id) }}" class="btn btn-xs btn-default text-primary mx-1 shadow" title="Editar"><i class="fa fa-lg fa-fw fa-pen"></i></a>
+                            @endcanany
+                            @canany('admin.littleSchool.edit')
+                                <form action="{{ route('admin.littleSchool.destroy', $item->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-xs btn-danger">Eliminar</button>
+                                </form>
                             @endcanany
                         </td>
                     </tr>
