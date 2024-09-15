@@ -134,11 +134,21 @@ class FixtureController extends Controller
         $homeTeamPosition = PositionTable::firstOrNew(['team_id' => $fixture->home_team_id, 'tournament_id' => $fixture->tournament_id]);
         $awayTeamPosition = PositionTable::firstOrNew(['team_id' => $fixture->away_team_id, 'tournament_id' => $fixture->tournament_id]);
     
-        if ($previousFixture->status == 'completed' && $fixture->status != 'completed') {
+        // Si el resultado o la decisión de mesa no cambia, no actualizamos la tabla
+        $resultChanged = ($previousFixture->home_team_score !== $fixture->home_team_score || $previousFixture->away_team_score !== $fixture->away_team_score);
+        $forfeitChanged = ($previousFixture->won_by_forfeit !== $fixture->won_by_forfeit);
+    
+        if (!$resultChanged && !$forfeitChanged) {
+            return; // No se actualiza la tabla si no hubo cambios en el resultado o decisión de mesa
+        }
+    
+        // Revertir los efectos del resultado anterior si el fixture ya estaba completado
+        if ($previousFixture->status == 'completed') {
             $this->adjustTeamStats($homeTeamPosition, $previousFixture->home_team_score, $previousFixture->away_team_score, false);
             $this->adjustTeamStats($awayTeamPosition, $previousFixture->away_team_score, $previousFixture->home_team_score, false);
         }
     
+        // Aplicar el nuevo resultado si el fixture está marcado como completado
         if ($fixture->status == 'completed') {
             if ($fixture->won_by_forfeit) {
                 $this->assignForfeitWin($fixture, $homeTeamPosition, $awayTeamPosition);
@@ -151,6 +161,7 @@ class FixtureController extends Controller
         $homeTeamPosition->save();
         $awayTeamPosition->save();
     }
+    
     
     private function assignForfeitWin(Fixture $fixture, PositionTable $homeTeamPosition, PositionTable $awayTeamPosition)
     {
