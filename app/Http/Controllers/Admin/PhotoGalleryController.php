@@ -36,23 +36,29 @@ class PhotoGalleryController extends Controller
     {
         $request->validate([
             'match_date' => 'required|date',
-            'photos.*' => 'required|image|max:2048',
+            'photos.*' => 'required|image|max:5120',  // 5120 KB = 5 MB
         ]);
         
         $tournament = Tournament::findOrFail($tournamentId);
-
+    
         if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('galleries/'.$tournamentId, 'public');
-
-                PhotoGallery::create([
-                    'tournament_id' => $tournamentId,
-                    'match_date' => $request->match_date,
-                    'photo_path' => $path,
-                ]);
+            $photos = $request->file('photos');
+            $batchSize = 10;  // Definir el tamaño del lote
+            $photoBatches = array_chunk($photos, $batchSize);  // Dividir las fotos en lotes de 10
+    
+            foreach ($photoBatches as $batch) {
+                foreach ($batch as $photo) {
+                    $path = $photo->store('galleries/'.$tournamentId, 'public');
+    
+                    PhotoGallery::create([
+                        'tournament_id' => $tournamentId,
+                        'match_date' => $request->match_date,
+                        'photo_path' => $path,
+                    ]);
+                }
             }
         }
-
+    
         return redirect()->route('admin.gallery.index', $tournamentId)->with('success', 'Fotos subidas exitosamente.');
     }
 
