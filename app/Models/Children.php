@@ -9,7 +9,7 @@ class Children extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['user_id', 'name', 'age', 'uniform_size', 'child_document_path', 'document'];
+    protected $fillable = ['user_id', 'name', 'age', 'uniform_size', 'child_document_path', 'document', 'birthdate'];
 
     public function parent()
     {

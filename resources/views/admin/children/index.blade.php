@@ -12,6 +12,7 @@
             </x-adminlte-callout>
         @endif
         <x-adminlte-card>
+            <a href="{{ route('admin.export.children') }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Exportar"><i class="fa fa-lg fa-fw fa-eye"></i></a>
             <x-adminlte-datatable id="table2" :heads="['ID', 'Nombre del Niño', 'Edad','Talle de Uniforme', 'Documento','Documento del Niño', 'Acciones']">
                 @foreach($children as $item)
                     <tr>
@@ -54,5 +55,24 @@
 @endpush
 
 @push('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+    <script>
+    $(document).ready(function() {
+        if (!$.fn.DataTable.isDataTable('#table2')) {
+            $('#table2').DataTable({
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        title: 'Exportación a Excel'
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        title: 'Exportación a PDF'
+                    }
+                ],
+            });
+        }
+    });
+    </script>
 @endpush

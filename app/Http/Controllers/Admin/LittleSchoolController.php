@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ChildrenExport;
 use App\Http\Controllers\Controller;
 use App\Models\Children;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LittleSchoolController extends Controller
 {
@@ -96,5 +98,11 @@ class LittleSchoolController extends Controller
         $child = Children::findOrFail($id);
         $child->delete();
         return redirect()->route('admin.littleSchool.index')->with('success', 'El niño ha sido eliminado correctamente.');
+    }
+
+    // Función para exportar la lista de niños a Excel
+    public function exportChildren()
+    {
+        return Excel::download(new ChildrenExport, 'lista_niños_escuelita_2024.xlsx');
     }
 }

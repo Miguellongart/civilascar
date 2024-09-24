@@ -20,6 +20,7 @@ class User extends Authenticatable
         'document',
         'neighborhood',
         'parent_document_path',
+        'phone',
     ];
 
     protected $hidden = [

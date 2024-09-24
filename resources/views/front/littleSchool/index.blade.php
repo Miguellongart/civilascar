@@ -63,12 +63,32 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    {{-- <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="parent_document">Subir Documento del Padre o Madre</label>
                                 <input type="file" id="parent_document" name="parent_document" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
                                 @error('parent_document')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div> --}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <input 
+                                    type="text" 
+                                    id="phone" 
+                                    name="phone" 
+                                    class="form-control" 
+                                    value="{{ old('phone') }}" 
+                                    style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" 
+                                    required 
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    maxlength="15"> <!-- Puedes ajustar el máximo de caracteres que quieras permitir -->
+                                @error('phone')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -119,6 +139,26 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="children[0][birthdate]">Fecha de Nacimiento</label>
+                                        <input 
+                                            type="text" 
+                                            name="children[0][birthdate]" 
+                                            class="form-control" 
+                                            value="{{ old('children.0.birthdate') }}" 
+                                            style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" 
+                                            required 
+                                            placeholder="12/02/2024" 
+                                            oninput="this.value = this.value.replace(/[^0-9\/]/g, '').replace(/(\..*)\./g, '$1');" 
+                                            maxlength="10">
+                                        @error('children.0.birthdate')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>                            
                         </div>
                     </div>
                     <button type="button" id="add-child" class="btn btn-danger">Agregar Otro Hijo</button>
@@ -277,32 +317,35 @@
                 const childDiv = document.createElement('div');
                 childDiv.classList.add('child');
                 childDiv.innerHTML = `
-
-                        <div class="child">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="children[${index}][name]">Nombre del Hijo</label>
-                            <input type="text" name="children[${index}][name]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="children[${index}][age]">Edad</label>
-                            <input type="number" name="children[${index}][age]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="children[${index}][uniform_size]">Talle de Uniforme</label>
-                            <input type="text" name="children[${index}][uniform_size]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="children[${index}][document]">Documento</label>
-                            <input type="text" name="children[${index}][document]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                <div class="child">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="children[${index}][name]">Nombre del Hijo</label>
+                                <input type="text" name="children[${index}][name]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="children[${index}][age]">Edad</label>
+                                <input type="number" name="children[${index}][age]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="children[${index}][birthdate]">Fecha de Nacimiento</label>
+                                <input type="text" name="children[${index}][birthdate]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" placeholder="dd/mm/yyyy" required oninput="this.value = this.value.replace(/[^0-9\/]/g, '').replace(/(\..*)\./g, '$1');" maxlength="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="children[${index}][uniform_size]">Talle de Uniforme</label>
+                                <input type="text" name="children[${index}][uniform_size]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="children[${index}][document]">Documento</label>
+                                <input type="text" name="children[${index}][document]" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 `;
                 container.appendChild(childDiv);
@@ -328,6 +371,17 @@
                     </div>
                 `;
                 container.appendChild(guardianDiv);
+            });
+
+            document.querySelector('input[name="children[0][birthdate]"]').addEventListener('input', function (e) {
+                let input = e.target.value;
+                if (/\d{2}\/\d{2}\/\d{4}/.test(input)) {
+                    // Valid format
+                    e.target.setCustomValidity('');
+                } else {
+                    // Invalid format
+                    e.target.setCustomValidity('La fecha debe tener el formato dd/mm/yyyy');
+                }
             });
         </script>
     @endpush

@@ -197,7 +197,6 @@ class FrontController extends Controller
             'parent_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'neighborhood' => 'required|string|max:255',
-            'parent_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png,heic|max:10240',
             'children.*.name' => 'required|string|max:255',
             'children.*.age' => 'required|integer|min:1|max:18',
             'children.*.uniform_size' => 'required|string|max:10',
@@ -214,11 +213,12 @@ class FrontController extends Controller
             // Si el usuario ya existe, actualizar datos faltantes
             $existingUser->update([
                 'name' => $existingUser->name ?: $request->input('parent_name'),
+                'phone' => $existingUser->name ?: $request->input('phone'),
                 'email' => $existingUser->email ?: $request->input('email'),
                 'password' => $existingUser->password ?: Hash::make($request->input('password')),
                 'document' => $existingUser->document ?: $request->input('document'),
                 'neighborhood' => $existingUser->neighborhood ?: $request->input('neighborhood'),
-                'parent_document_path' => $existingUser->parent_document_path ?: ($request->file('parent_document') ? $request->file('parent_document')->store('documents/parents') : $existingUser->parent_document_path),
+                // 'parent_document_path' => $existingUser->parent_document_path ?: ($request->file('parent_document') ? $request->file('parent_document')->store('documents/parents') : $existingUser->parent_document_path),
             ]);
     
             $user = $existingUser;
@@ -231,7 +231,8 @@ class FrontController extends Controller
                 'document' => $request->input('document'),
                 'dni' => $request->input('document'),
                 'neighborhood' => $request->input('neighborhood'),
-                'parent_document_path' => $request->file('parent_document')->store('documents/parents'),
+                // 'parent_document_path' => $request->file('parent_document')->store('documents/parents'),
+                'phone' => $request->input('phone'),
             ]);
         }
 
@@ -241,6 +242,7 @@ class FrontController extends Controller
                 'age' => $childData['age'],
                 'uniform_size' => $childData['uniform_size'],
                 'document' => $childData['document'],
+                'birthdate' => $childData['birthdate'],
             ]);
         }
     

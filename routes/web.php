@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::get('littleSchool/{id}/edit', [LittleSchoolController::class, 'edit'])->name('admin.littleSchool.edit');
     Route::put('littleSchool/{id}', [LittleSchoolController::class, 'update'])->name('admin.littleSchool.update');
     Route::delete('littleSchool/{id}', [LittleSchoolController::class, 'destroy'])->name('admin.littleSchool.destroy');
+    Route::get('/exportar-children', [LittleSchoolController::class, 'exportChildren'])->name('admin.export.children');
 });
 
 Route::middleware(['auth'])->group(function () {
