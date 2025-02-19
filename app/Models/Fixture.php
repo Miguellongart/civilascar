@@ -20,7 +20,8 @@ class Fixture extends Model
         'sport',
         'periods',
         'period_times',
-        'won_by_forfeit'
+        'won_by_forfeit',
+        'round',
     ];
 
     protected $casts = [

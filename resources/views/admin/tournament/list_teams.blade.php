@@ -20,7 +20,7 @@
                         <td>{{ $team->home_stadium }}</td>
                         <td>
                             @canany('admin.team.show')
-                                <a href="{{ route('admin.team.show', $team->id) }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Ver Detalles">
+                                <a href="{{ route('admin.team.show', ['idTeam' => $team->id, 'idTournament' => $tournament->id]) }}" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Ver Detalles">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>
                             @endcanany

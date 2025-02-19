@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Player;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -118,19 +119,29 @@ class TeamController extends Controller
 
         return redirect()->route('admin.team.index')->with('success', 'Equipo creado exitosamente.');
     }
-    
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $idTeam, string $idTournament)
     {
-        $team = Team::with('players')->find($id);
+        // Obtener el equipo
+        $team = Team::findOrFail($idTeam);
+
+        // Consulta para obtener los jugadores asociados al equipo y torneo especificado
+        $players = Player::select('players.*')
+            ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
+            ->where('player_team_tournament.team_id', $idTeam)
+            ->where('player_team_tournament.tournament_id', $idTournament)
+            ->with('user') // Si necesitas cargar la relación "user" del jugador
+            ->get();
+
         $subtitle = 'Información del Equipo: ' . $team->name;
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Información del Equipo: ' . $team->name;
 
-        return view('admin.team.show', compact('team', 'subtitle', 'content_header_title', 'content_header_subtitle'));
+        return view('admin.team.show', compact('team', 'players', 'subtitle', 'content_header_title', 'content_header_subtitle'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

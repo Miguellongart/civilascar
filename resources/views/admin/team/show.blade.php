@@ -68,7 +68,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($team->players as $player)
+                    @foreach ($players as $player)
                         <tr>
                             <td>{{ $player->user->name }}</td>
                             <td>{{ $player->user->dni }}</td>

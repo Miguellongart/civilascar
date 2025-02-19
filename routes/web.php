@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('team', [TeamController::class, 'index'])->name('admin.team.index');
     Route::get('team/create', [TeamController::class, 'create'])->name('admin.team.create');
     Route::post('team', [TeamController::class, 'store'])->name('admin.team.store');
-    Route::get('team/{id}', [TeamController::class, 'show'])->name('admin.team.show');
+    Route::get('team/{idTeam}/{idTournament?}', [TeamController::class, 'show'])->name('admin.team.show');
     Route::get('team/{id}/edit', [TeamController::class, 'edit'])->name('admin.team.edit');
     Route::put('team/{id}', [TeamController::class, 'update'])->name('admin.team.update');
     Route::delete('team/{id}', [TeamController::class, 'destroy'])->name('admin.team.destroy');
@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('fixture/{id}/edit', [FixtureController::class, 'edit'])->name('admin.fixture.edit');
     Route::put('fixture/{id}', [FixtureController::class, 'update'])->name('admin.fixture.update');
     Route::delete('fixture/{id}', [FixtureController::class, 'destroy'])->name('admin.fixture.destroy');
+    Route::get('fixture/{id}/generate', [FixtureController::class, 'createFixture'])->name('admin.fixture.createFixture');
 
     // Rutas para editar y eliminar jugadores
     Route::get('player/{id}/edit', [PlayerController::class, 'edit'])->name('admin.player.edit');

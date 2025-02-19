@@ -24,6 +24,11 @@
                 </div>
                 <button type="submit" class="btn btn-primary mb-2">Filtrar</button>
             </form>
+
+
+            <a href="{{ route('admin.fixture.createFixture', $tournament->id) }}" class="btn-sm btn-success">
+                <i class="fas fa-plus"></i> Crear
+            </a>
             <x-adminlte-datatable id="table2" :heads="['ID', 'Home Team', 'Home Goal','Away Goal', 'Away Team', 'Match Date','Estado', 'Acciones']">
                 @foreach($fixtures as $item)
                     <tr>
