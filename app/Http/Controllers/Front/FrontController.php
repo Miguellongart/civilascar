@@ -186,7 +186,13 @@ class FrontController extends Controller
         $user = User::where('email', $request->email)->orWhere('dni', $request->dni)->first();
 
         if ($user) {
-            $player = Player::where('user_id', $user->id)->where('team_id', $request->team_id)->first();
+            // Verificar si el jugador ya está registrado con ese equipo para ese torneo
+            $player = Player::select('players.*')
+                ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
+                ->where('player_team_tournament.team_id', $request->team_id)
+                ->where('player_team_tournament.tournament_id', $request->tournament_id)
+                ->where('players.user_id', $user->id)
+                ->first();
             if ($player) {
                 Alert::info('Info', 'El Jugador ya está registrado y asociado a este equipo en el torneo.');
                 return redirect()->back();
