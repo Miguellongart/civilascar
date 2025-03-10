@@ -90,6 +90,9 @@ class FrontController extends Controller
 
         // 1. Goleadores: obtener los 10 jugadores con la suma de goles mayor a 0
         $topScorers = PlayerFixtureEvent::where('event_type', 'goal')
+            ->whereHas('fixture', function ($q) use ($currentTournament) {
+                $q->where('tournament_id', $currentTournament->id);
+            })
             ->whereHas('player', function ($q) use ($teamIds) {
                 $q->whereIn('team_id', $teamIds);
             })
@@ -103,8 +106,11 @@ class FrontController extends Controller
 
         // 2. Tarjetas Amarillas: obtener los 10 jugadores con mayor suma de tarjetas amarillas
         $yellowCards = PlayerFixtureEvent::where('event_type', 'yellow_card')
+            ->whereHas('fixture', function ($q) use ($currentTournament) {
+            $q->where('tournament_id', $currentTournament->id);
+            })
             ->whereHas('player', function ($q) use ($teamIds) {
-                $q->whereIn('team_id', $teamIds);
+            $q->whereIn('team_id', $teamIds);
             })
             ->select('player_id', DB::raw('SUM(quantity) as yellow_cards'))
             ->groupBy('player_id')
@@ -115,8 +121,11 @@ class FrontController extends Controller
 
         // 3. Tarjetas Rojas: obtener los 10 jugadores con mayor suma de tarjetas rojas
         $redCards = PlayerFixtureEvent::where('event_type', 'red_card')
+            ->whereHas('fixture', function ($q) use ($currentTournament) {
+            $q->where('tournament_id', $currentTournament->id);
+            })
             ->whereHas('player', function ($q) use ($teamIds) {
-                $q->whereIn('team_id', $teamIds);
+            $q->whereIn('team_id', $teamIds);
             })
             ->select('player_id', DB::raw('SUM(quantity) as red_cards'))
             ->groupBy('player_id')
