@@ -35,8 +35,8 @@
                     <!-- Banners de publicidad -->
                     <div class="col-md-5 d-flex flex-column order-1 order-md-2">
                         <div class="d-flex flex-row align-items-center mb-3 flex-wrap">
-                            <img src="{{ asset('front/images/marcas/pl.png') }}" alt="Publicidad"
-                                class="publicidad img-fluid mr-2 mb-2 mb-md-0">
+                            {{-- <img src="{{ asset('front/images/marcas/pl.png') }}" alt="Publicidad"
+                                class="publicidad img-fluid mr-2 mb-2 mb-md-0"> --}}
                             <img src="{{ asset('front/images/marcas/ci.jpg') }}" alt="Publicidad"
                                 style="border-radius: 50%" class="publicidad img-fluid">
                         </div>
@@ -120,19 +120,22 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($currentTournament->positionTables as $position)
-                                    <tr
-                                        class="{{ $loop->iteration === 1 ? 'table-warning' : ($loop->iteration === 2 ? 'table-info' : '') }}">
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $position->team->name }}</td>
-                                        <td>{{ $position->played }}</td>
-                                        <td>{{ $position->won }}</td>
-                                        <td>{{ $position->drawn }}</td>
-                                        <td>{{ $position->lost }}</td>
-                                        <td>{{ $position->goals_for }}</td>
-                                        <td>{{ $position->goals_against }}</td>
-                                        <td>{{ $position->goal_difference }}</td>
-                                        <td>{{ $position->points }}</td>
-                                    </tr>
+                                        <tr class="{{ $loop->iteration === 1 ? 'table-warning' : ($loop->iteration === 2 ? 'table-info' : '') }}">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                <a href="{{ route('front.team.show', $position->team->id) }}">
+                                                    {{ $position->team->name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $position->played }}</td>
+                                            <td>{{ $position->won }}</td>
+                                            <td>{{ $position->drawn }}</td>
+                                            <td>{{ $position->lost }}</td>
+                                            <td>{{ $position->goals_for }}</td>
+                                            <td>{{ $position->goals_against }}</td>
+                                            <td>{{ $position->goal_difference }}</td>
+                                            <td>{{ $position->points }}</td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>

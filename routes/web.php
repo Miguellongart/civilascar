@@ -29,6 +29,9 @@ Route::get('/inscripcion/liga-cafetera-2024-2', [FrontController::class, 'inscri
 Route::get('/register', [FrontController::class, 'showForm'])->name('registration.form');
 Route::post('/registerLitle', [FrontController::class, 'register'])->name('registration.register');
 
+Route::get('/equipo/{teamId}', [FrontController::class, 'teamPage'])->name('front.team.show');
+
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -58,10 +61,11 @@ Route::middleware('auth')->group(function () {
     Route::get('team', [TeamController::class, 'index'])->name('admin.team.index');
     Route::get('team/create', [TeamController::class, 'create'])->name('admin.team.create');
     Route::post('team', [TeamController::class, 'store'])->name('admin.team.store');
-    Route::get('team/{idTeam}/{idTournament?}', [TeamController::class, 'show'])->name('admin.team.show');
+    Route::get('team/{idTeam}/{idTournament}', [TeamController::class, 'show'])->name('admin.team.show');
     Route::get('team/{id}/edit', [TeamController::class, 'edit'])->name('admin.team.edit');
     Route::put('team/{id}', [TeamController::class, 'update'])->name('admin.team.update');
     Route::delete('team/{id}', [TeamController::class, 'destroy'])->name('admin.team.destroy');
+    Route::post('team/transfer-player', [TeamController::class, 'transferPlayer'])->name('admin.team.transferPlayer');
 
 
     Route::get('tournaments/{tournament}/fixtures', [FixtureController::class, 'index'])->name('admin.fixture.index');

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Player;
 use App\Models\Team;
+use App\Models\Tournament;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -26,35 +28,41 @@ class TeamController extends Controller
             ['label' => 'Logo', 'width' => 20],
             ['label' => 'Acciones', 'no-export' => true, 'width' => 20],
         ];
-
-        $teams = Team::all();
-
+    
+        $teams = Team::with('tournaments')->get(); // Asegúrate de tener esta relación definida en tu modelo Team
+    
         $config = [
             'data' => $teams->map(function($team) {
-
                 $btnEdit = '';
                 $btnDelete = '';
                 $btnDetails = '';
-
+    
+                // Obtener el primer torneo asociado al equipo (puedes ajustar si deseas otro criterio)
+                $firstTournament = $team->tournaments->first();
+    
                 if (auth()->user()->can('admin.team.edit')) {
                     $btnEdit = '<a href="' . route('admin.team.edit', $team) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
                                     <i class="fa fa-lg fa-fw fa-pen"></i>
                                 </a>';
                 }
+    
                 if (auth()->user()->can('admin.team.destroy')) {
                     $btnDelete = '<form method="POST" action="' . route('admin.team.destroy', $team) . '" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'Are you sure?\')">
+                                <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'¿Estás seguro?\')">
                                     <i class="fa fa-lg fa-fw fa-trash"></i>
                                 </button>
                             </form>';
                 }
-                    $btnDetails = '<a href="' . route('admin.team.show', $team) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+    
+                if (auth()->user()->can('admin.team.show') && $firstTournament) {
+                    $btnDetails = '<a href="' . route('admin.team.show', ['idTeam' => $team->id, 'idTournament' => $firstTournament->id]) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>';
-
+                }
+    
                 $logo = $team->logo ? '<img src="' . asset('storage/' . $team->logo) . '" alt="Logo" height="50">' : 'No logo';
-
+    
                 return [
                     $team->id,
                     $team->name,
@@ -67,11 +75,11 @@ class TeamController extends Controller
             'order' => [[1, 'asc']],
             'columns' => [null, null, null, null, null, ['orderable' => false]],
         ];
-
+    
         $subtitle = 'Listado de Equipos';
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Listado de Equipos';
-
+    
         return view('admin.team.index', compact('heads', 'config', 'subtitle', 'content_header_title', 'content_header_subtitle'));
     }
 
@@ -126,7 +134,9 @@ class TeamController extends Controller
     {
         // Obtener el equipo
         $team = Team::findOrFail($idTeam);
-
+        $allTeams = Team::all();
+        $allTournaments = Tournament::all();
+    
         // Consulta para obtener los jugadores asociados al equipo y torneo especificado
         $players = Player::select('players.*')
             ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
@@ -134,12 +144,21 @@ class TeamController extends Controller
             ->where('player_team_tournament.tournament_id', $idTournament)
             ->with('user') // Si necesitas cargar la relación "user" del jugador
             ->get();
-
+    
         $subtitle = 'Información del Equipo: ' . $team->name;
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Información del Equipo: ' . $team->name;
-
-        return view('admin.team.show', compact('team', 'players', 'subtitle', 'content_header_title', 'content_header_subtitle'));
+    
+        return view('admin.team.show', compact(
+            'team',
+            'players',
+            'allTeams',
+            'allTournaments',
+            'idTournament',
+            'subtitle',
+            'content_header_title',
+            'content_header_subtitle'
+        ));
     }
 
 
@@ -217,5 +236,36 @@ class TeamController extends Controller
         $team->delete();
 
         return redirect()->route('admin.team.index')->with('success', 'Equipo eliminado exitosamente.');
+    }
+
+    public function transferPlayer(Request $request)
+    {
+        $request->validate([
+            'player_id' => 'required|exists:players,id',
+            'from_team_id' => 'required|exists:teams,id',
+            'from_tournament_id' => 'required|exists:tournaments,id',
+            'to_team_id' => 'required|exists:teams,id',
+            'to_tournament_id' => 'required|exists:tournaments,id',
+        ]);
+
+        $exists = DB::table('player_team_tournament')
+            ->where('player_id', $request->player_id)
+            ->where('team_id', $request->to_team_id)
+            ->where('tournament_id', $request->to_tournament_id)
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Este jugador ya está inscrito en ese equipo y torneo.');
+        }
+
+        DB::table('player_team_tournament')->insert([
+            'player_id' => $request->player_id,
+            'team_id' => $request->to_team_id,
+            'tournament_id' => $request->to_tournament_id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Jugador transferido correctamente.');
     }
 }

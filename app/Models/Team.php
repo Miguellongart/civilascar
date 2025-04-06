@@ -32,18 +32,34 @@ class Team extends Model
     public function tournaments()
     {
         return $this->belongsToMany(Tournament::class, 'team_tournament')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     public function tournamentPlayers($tournamentId)
     {
         return $this->belongsToMany(
-                    Player::class,            // Modelo relacionado
-                    'player_team_tournament', // Nombre de la tabla pivote
-                    'team_id',                // Columna que relaciona el equipo en la tabla pivote
-                    'player_id'               // Columna que relaciona al jugador en la tabla pivote
-                )
-                ->withPivot('tournament_id') // Para tener acceso al id del torneo en el pivot (opcional)
-                ->wherePivot('tournament_id', $tournamentId); // Filtra por el torneo seleccionado
+            Player::class,            // Modelo relacionado
+            'player_team_tournament', // Nombre de la tabla pivote
+            'team_id',                // Columna que relaciona el equipo en la tabla pivote
+            'player_id'               // Columna que relaciona al jugador en la tabla pivote
+        )
+            ->withPivot('tournament_id') // Para tener acceso al id del torneo en el pivot (opcional)
+            ->wherePivot('tournament_id', $tournamentId); // Filtra por el torneo seleccionado
+    }
+
+    public function fixturesHome()
+    {
+        return $this->hasMany(Fixture::class, 'home_team_id');
+    }
+
+    public function fixturesAway()
+    {
+        return $this->hasMany(Fixture::class, 'away_team_id');
+    }
+
+    public function allFixtures()
+    {
+        return Fixture::where('home_team_id', $this->id)
+            ->orWhere('away_team_id', $this->id);
     }
 }

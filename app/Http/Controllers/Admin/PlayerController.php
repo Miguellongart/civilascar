@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Player;
+use App\Models\Team;
+use App\Models\Tournament;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -47,12 +49,21 @@ class PlayerController extends Controller
     // Método para mostrar el formulario de edición
     public function edit($id)
     {
-        $player = Player::find($id); 
-        // dd($player);
+        $player = Player::findOrFail($id); 
+        $allTeams = Team::all();
+        $allTournaments = Tournament::all();
+    
         $subtitle = 'Editando a '.$player->user->name;
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Editando a '.$player->user->name;
-        return view('admin.player.edit', compact('player','subtitle', 'content_header_title', 'content_header_subtitle'));
+    
+        $idTournament = optional($player->team->tournaments->first())->id;
+    
+        return view('admin.player.edit', compact(
+            'player', 'subtitle', 'content_header_title', 'content_header_subtitle', 'idTournament',
+            'allTeams',
+            'allTournaments',
+        ));
     }
 
     /**
@@ -91,7 +102,7 @@ class PlayerController extends Controller
         ]);
     
         // Redirigir al detalle del equipo
-    return redirect()->route('admin.team.show', $player->team_id)->with('success', 'Jugador y usuario actualizados exitosamente.');
+        return redirect()->route('admin.team.show', ['idTeam' => $player->team_id, 'idTournament' => $request->input('idTournament')])->with('success', 'Jugador y usuario actualizados exitosamente.');
     }
 
 

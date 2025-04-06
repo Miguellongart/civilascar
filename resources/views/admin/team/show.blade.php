@@ -89,7 +89,76 @@
                                         <i class="fa fa-lg fa-fw fa-trash"></i>
                                     </button>
                                 </form>
+                                <!-- Botón para transferir (abre modal) -->
+                                <x-adminlte-button label="Transferir jugador" data-toggle="modal" data-target="#transferModal{{ $player->id }}"/>
+                                {{-- Modal de Transferencia --}}
+                                <x-adminlte-modal id="transferModal{{ $player->id }}" title="Transferir Jugador" size="lg" theme="success"
+                                    icon="fas fa-exchange-alt" v-centered static-backdrop scrollable>
+
+                                    <p class="text-center">
+                                        <strong>Jugador:</strong> {{ $player->name }} <br>
+                                        <strong>Número:</strong> {{ $player->number }}
+                                    </p>
+
+                                    <form method="POST" action="{{ route('admin.team.transferPlayer') }}">
+                                        @csrf
+                                        <input type="hidden" name="player_id" value="{{ $player->id }}">
+                                        <input type="hidden" name="from_team_id" value="{{ $team->id }}">
+                                        <input type="hidden" name="from_tournament_id" value="{{ $idTournament }}">
+
+                                        {{-- Equipo destino --}}
+                                        <x-adminlte-select2 name="to_team_id" label="Equipo destino" label-class="text-success" data-placeholder="Selecciona un equipo..." igroup-size="lg" required>
+                                            <x-slot name="prependSlot">
+                                                <div class="input-group-text bg-gradient-success">
+                                                    <i class="fas fa-users"></i>
+                                                </div>
+                                            </x-slot>
+                                            <option value="">Selecciona un equipo...</option>
+                                            @foreach($allTeams as $destTeam)
+                                                <option value="{{ $destTeam->id }}">{{ $destTeam->name }}</option>
+                                            @endforeach
+                                        </x-adminlte-select2>
+
+                                        {{-- Torneo destino --}}
+                                        <x-adminlte-select2 name="to_tournament_id" label="Torneo destino" label-class="text-success" data-placeholder="Selecciona un torneo..." igroup-size="lg" required>
+                                            <x-slot name="prependSlot">
+                                                <div class="input-group-text bg-gradient-success">
+                                                    <i class="fas fa-trophy"></i>
+                                                </div>
+                                            </x-slot>
+                                            <option value="">Selecciona un torneo...</option>
+                                            @foreach($allTournaments as $destTourney)
+                                                <option value="{{ $destTourney->id }}">{{ $destTourney->name }}</option>
+                                            @endforeach
+                                        </x-adminlte-select2>
+
+                                        {{-- Posición y número (opcional) --}}
+                                        <x-adminlte-input name="new_position" label="Nueva posición (opcional)" placeholder="Ej: Defensa" fgroup-class="mt-3" label-class="text-success">
+                                            <x-slot name="prependSlot">
+                                                <div class="input-group-text bg-gradient-success">
+                                                    <i class="fas fa-running"></i>
+                                                </div>
+                                            </x-slot>
+                                        </x-adminlte-input>
+
+                                        <x-adminlte-input name="new_number" label="Nuevo número (opcional)" placeholder="Ej: 10" type="number" fgroup-class="mt-2" label-class="text-success">
+                                            <x-slot name="prependSlot">
+                                                <div class="input-group-text bg-gradient-success">
+                                                    <i class="fas fa-hashtag"></i>
+                                                </div>
+                                            </x-slot>
+                                        </x-adminlte-input>
+
+                                        {{-- Footer con botones --}}
+                                        <x-slot name="footerSlot">
+                                            <x-adminlte-button label="Cancelar" theme="secondary" data-dismiss="modal"/>
+                                            <button type="submit" class="btn btn-success" onclick="console.log('Form submitted');">Transferir</button>
+                                        </x-slot>
+                                    </form>
+                                </x-adminlte-modal>
+                                {{-- Fin del modal de transferencia --}}
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -105,6 +174,17 @@
 <script>
     $(document).ready(function() {
         $('#playersTable').DataTable();
+
+        // Debugging form submission
+        $('form').on('submit', function(e) {
+            console.log('Submitting form:', $(this).attr('action'));
+            
+            // Verifica si el formulario tiene el atributo action correcto
+            if (!$(this).attr('action')) {
+                console.error('El formulario no tiene un atributo action definido.');
+                e.preventDefault(); // Previene el envío si no hay acción
+            }
+        });
     });
 </script>
 @endpush

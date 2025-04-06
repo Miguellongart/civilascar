@@ -107,10 +107,10 @@ class FrontController extends Controller
         // 2. Tarjetas Amarillas: obtener los 10 jugadores con mayor suma de tarjetas amarillas
         $yellowCards = PlayerFixtureEvent::where('event_type', 'yellow_card')
             ->whereHas('fixture', function ($q) use ($currentTournament) {
-            $q->where('tournament_id', $currentTournament->id);
+                $q->where('tournament_id', $currentTournament->id);
             })
             ->whereHas('player', function ($q) use ($teamIds) {
-            $q->whereIn('team_id', $teamIds);
+                $q->whereIn('team_id', $teamIds);
             })
             ->select('player_id', DB::raw('SUM(quantity) as yellow_cards'))
             ->groupBy('player_id')
@@ -122,10 +122,10 @@ class FrontController extends Controller
         // 3. Tarjetas Rojas: obtener los 10 jugadores con mayor suma de tarjetas rojas
         $redCards = PlayerFixtureEvent::where('event_type', 'red_card')
             ->whereHas('fixture', function ($q) use ($currentTournament) {
-            $q->where('tournament_id', $currentTournament->id);
+                $q->where('tournament_id', $currentTournament->id);
             })
             ->whereHas('player', function ($q) use ($teamIds) {
-            $q->whereIn('team_id', $teamIds);
+                $q->whereIn('team_id', $teamIds);
             })
             ->select('player_id', DB::raw('SUM(quantity) as red_cards'))
             ->groupBy('player_id')
@@ -311,5 +311,70 @@ class FrontController extends Controller
         // Autenticar al usuario
         Alert::success('Éxito', 'Nuevo Registro de integrante Escuelita.');
         return redirect()->route('front.school');
+    }
+
+    public function teamPage($teamId)
+    {
+        $team = Team::with([
+            'players.user',
+            'fixturesHome.tournament',
+            'fixturesAway.tournament',
+            'tournaments'
+        ])->findOrFail($teamId);
+    
+        // Torneo actual activo o más reciente no finalizado
+        $currentTournament = $team->tournaments()
+            ->where('status', true)
+            ->orWhere('end_date', '>=', now())
+            ->latest('start_date')
+            ->first();
+    
+        // Agrupamos los jugadores por torneo
+        $playersByTournament = $team->tournaments->mapWithKeys(function ($tournament) use ($team) {
+            $players = $team->tournamentPlayers($tournament->id)->with('user')->get();
+            return [$tournament->name => $players];
+        });
+    
+        // Partidos (local + visitante), ordenados por fecha
+        $allFixtures = $team->fixturesHome->merge($team->fixturesAway)->sortByDesc('match_date');
+    
+        // Agrupamos los partidos por torneo
+        $fixturesByTournament = $allFixtures->groupBy(function ($fixture) {
+            return $fixture->tournament->name ?? 'Sin torneo';
+        });
+    
+        // IDs de jugadores del equipo
+        $teamIds = [$team->id];
+    
+        // Goleadores del equipo agrupados por torneo
+        $topScorersByTournament = [];
+    
+        foreach ($team->tournaments as $tournament) {
+            $scorers = PlayerFixtureEvent::where('event_type', 'goal')
+                ->whereHas('fixture', function ($q) use ($tournament) {
+                    $q->where('tournament_id', $tournament->id);
+                })
+                ->whereHas('player', function ($q) use ($teamIds) {
+                    $q->whereIn('team_id', $teamIds);
+                })
+                ->select('player_id', DB::raw('SUM(quantity) as goals'))
+                ->groupBy('player_id')
+                ->having('goals', '>', 0)
+                ->orderBy('goals', 'desc')
+                ->with('player.user', 'player.team')
+                ->get();
+    
+            if ($scorers->isNotEmpty()) {
+                $topScorersByTournament[$tournament->name] = $scorers;
+            }
+        }
+    
+        return view('front.team.show', compact(
+            'team',
+            'playersByTournament',
+            'fixturesByTournament',
+            'currentTournament',
+            'topScorersByTournament'
+        ));
     }
 }
