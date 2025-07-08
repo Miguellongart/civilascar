@@ -24,7 +24,7 @@ Route::post('/tournament/register', [FrontController::class, 'registerTeam'])->n
 Route::get('/tournament/{tournamentId}/teams', [FrontController::class, 'getTeamsByTournament'])->name('front.tournament.getTeamsByTournament');
 Route::get('/tournament/{tournamentId}', [FrontController::class, 'getinfoByTournament'])->name('front.tournament.getTeamsByTournament');
 
-Route::get('/inscripcion/liga-cafetera-2024-2', [FrontController::class, 'inscription'])->name('front.inscription');
+Route::get('/inscripcion/liga-cafetera-2024-3', [FrontController::class, 'inscription'])->name('front.inscription');
 // Route::get('/contacto', [FrontController::class, 'Contact'])->name('front.contact');
 Route::get('/register', [FrontController::class, 'showForm'])->name('registration.form');
 Route::post('/registerLitle', [FrontController::class, 'register'])->name('registration.register');

@@ -16,27 +16,76 @@ use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Services\TournamentService;
 
 class FrontController extends Controller
-{
-    public function Home()
+{    
+    protected $tournamentService;
+
+    public function __construct(TournamentService $tournamentService)
     {
-        return view('front.home.index');
+        $this->tournamentService = $tournamentService;
     }
 
-    public function Contact()
-    {
-        return view('front.contact.index');
-    }
+    
 
-    public function About()
+    public function Home(Request $request)
     {
-        return view('front.about.index');
-    }
+        // Obtener todos los torneos para el filtro
+        $allTournaments = $this->tournamentService->getAllPlannedTournaments();
 
-    public function LittleSchool()
-    {
-        return view('front.littleSchool.index');
+        // Determinar el torneo actual basado en el filtro (si se envía tournament_id)
+        $currentTournament = $this->tournamentService->getCurrentTournament($request, $allTournaments);
+
+        // Si no hay torneo actual, redirigir o mostrar un mensaje de error
+        if (!$currentTournament) {
+            // Se mantiene la redirección si NO HAY NINGÚN TORNEO planificado en absoluto.
+            return redirect()->back()->with('error', 'No se encontraron torneos planificados disponibles.');
+        }
+
+        // Obtener los IDs de los equipos que participan en el torneo actual
+        $teamIds = $currentTournament->teams->pluck('id');
+
+        // Obtener las fechas disponibles de los fixtures del torneo actual
+        $dates = $this->tournamentService->getFixtureDates($currentTournament->id);
+
+        // Determinar la siguiente fecha disponible o usar la del filtro
+        // Este método ahora es más inteligente y devuelve la fecha más apropiada
+        $filterDate = $this->tournamentService->getFilterDate($request, $dates);
+
+        // Si no hay ninguna fecha de partido (el torneo no tiene fixtures), inicializar fixtures como vacío
+        // y el filterDate permanecerá null para indicar a la vista que no hay fechas.
+        if (is_null($filterDate)) {
+            $fixtures = collect(); // Colección vacía
+            // Las demás estadísticas también deberían ser colecciones vacías si no hay partidos
+            $topScorers = collect();
+            $yellowCards = collect();
+            $redCards = collect();
+            // La tabla de posiciones se puede intentar ordenar igual si hay datos, o también inicializar vacía
+            $currentTournament = $this->tournamentService->sortTournamentPositionTable($currentTournament);
+        } else {
+            // Solo obtener fixtures si se encontró una fecha válida
+            $fixtures = $this->tournamentService->getFixturesForDate($currentTournament->id, $filterDate);
+
+            // Ordenar la tabla de posiciones del torneo actual
+            $currentTournament = $this->tournamentService->sortTournamentPositionTable($currentTournament);
+
+            // Filtrar eventos de jugadores considerando solo aquellos de equipos del torneo actual
+            $topScorers = $this->tournamentService->getTopScorers($currentTournament->id, $teamIds);
+            $yellowCards = $this->tournamentService->getYellowCards($currentTournament->id, $teamIds);
+            $redCards = $this->tournamentService->getRedCards($currentTournament->id, $teamIds);
+        }
+
+        return view('front.home.index', compact(
+            'allTournaments',
+            'currentTournament',
+            'fixtures',
+            'filterDate',
+            'dates',
+            'topScorers',
+            'yellowCards',
+            'redCards'
+        ));
     }
 
     public function tournament(Request $request)
@@ -167,34 +216,53 @@ class FrontController extends Controller
     public function registerTeam(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'dni' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'date_of_birth' => 'required|date',
+            'phone_number' => 'required|string|max:20',
+            'dni' => 'required|string|max:255|unique:users,dni',
+            'email' => 'nullable|email|unique:users,email', // Email nullable pero único si existe
             'position' => 'required|string|max:255',
             'number' => [
                 'required',
-                'string',
-                'regex:/^\d{1,5}$/',
+                'numeric',
+                'between:1,99999',
                 Rule::unique('players')->where(function ($query) use ($request) {
                     return $query->where('team_id', $request->team_id);
                 }),
             ],
-            'photo' => 'nullable|image|max:2048',
+            'player_photo' => 'nullable|image|max:2048', // Campo del formulario para la foto del jugador
+            'document_photo' => 'nullable|image|max:2048', // Campo del formulario para la foto del documento
             'team_id' => 'required|exists:teams,id',
             'tournament_id' => 'required|exists:tournaments,id',
         ]);
 
+        // Concatenar nombre y apellido para la columna 'name' del User
+        $fullName = $request->first_name . ' ' . $request->last_name;
+        $request->merge(['name' => $fullName]); // Agrega 'name' al request para usarlo fácilmente
+
         // Generar correo y contraseña aleatorios si no se proporcionan
         if (!$request->filled('email')) {
-            $request->merge(['email' => Str::random(10) . '@example.com']);
+            $generatedEmail = Str::random(10) . '@mi-liga.com';
+            $request->merge(['email' => $generatedEmail]);
         }
+        while (User::where('email', $request->email)->exists()) {
+            $request->merge(['email' => Str::random(10) . '@mi-liga.com']);
+        }
+
         if (!$request->filled('password')) {
             $randomPassword = Str::random(10);
             $request->merge(['password' => $randomPassword, 'password_confirmation' => $randomPassword]);
         }
 
-        $user = User::where('email', $request->email)->orWhere('dni', $request->dni)->first();
+        // Buscar usuario existente por email o DNI
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            $user = User::where('dni', $request->dni)->first();
+        }
 
         if ($user) {
+            // Un usuario existente ha sido encontrado
             // Verificar si el jugador ya está registrado con ese equipo para ese torneo
             $player = Player::select('players.*')
                 ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
@@ -202,20 +270,28 @@ class FrontController extends Controller
                 ->where('player_team_tournament.tournament_id', $request->tournament_id)
                 ->where('players.user_id', $user->id)
                 ->first();
+
             if ($player) {
                 Alert::info('Info', 'El Jugador ya está registrado y asociado a este equipo en el torneo.');
                 return redirect()->back();
             } else {
-                // Asociar el usuario existente a un nuevo equipo
+                // Asociar el usuario existente a un nuevo registro de jugador
                 $playerData = $request->only(['position', 'number', 'team_id']);
                 $playerData['user_id'] = $user->id;
-                if ($request->hasFile('photo')) {
-                    $playerData['photo'] = $request->file('photo')->store('players/photos', 'public');
+
+                // Manejo de la foto del jugador
+                if ($request->hasFile('player_photo')) {
+                    $playerData['player_photo_path'] = $request->file('player_photo')->store('players/photos', 'public');
                 }
+                // Manejo de la foto del documento
+                if ($request->hasFile('document_photo')) {
+                    $playerData['document_photo_path'] = $request->file('document_photo')->store('players/documents', 'public');
+                }
+
                 $player = Player::create($playerData);
                 $player->tournaments()->attach($request->tournament_id, ['team_id' => $request->team_id]);
 
-                // Asignar el rol 'player' al usuario
+                // Asignar el rol 'player' al usuario si no lo tiene
                 if (!$user->hasRole('player')) {
                     $user->assignRole('player');
                 }
@@ -224,93 +300,32 @@ class FrontController extends Controller
                 return redirect()->route('front.inscription');
             }
         } else {
-            // Registrar un nuevo usuario
-            $userData = $request->only(['name', 'email', 'dni', 'password']);
+            // No se encontró un usuario existente, registrar un nuevo usuario y jugador
+            $userData = $request->only(['name', 'email', 'dni', 'phone_number', 'date_of_birth']); // 'name' ya contiene nombre y apellido
             $userData['password'] = Hash::make($request->password);
             $user = User::create($userData);
 
             $playerData = $request->only(['position', 'number', 'team_id']);
             $playerData['user_id'] = $user->id;
-            if ($request->hasFile('photo')) {
-                $playerData['photo'] = $request->file('photo')->store('players/photos', 'public');
+
+            // Manejo de la foto del jugador
+            if ($request->hasFile('player_photo')) {
+                $playerData['player_photo_path'] = $request->file('player_photo')->store('players/photos', 'public');
             }
+            // Manejo de la foto del documento
+            if ($request->hasFile('document_photo')) {
+                $playerData['document_photo_path'] = $request->file('document_photo')->store('players/documents', 'public');
+            }
+
             $player = Player::create($playerData);
             $player->tournaments()->attach($request->tournament_id, ['team_id' => $request->team_id]);
 
-            // Asignar el rol 'player' al usuario
+            // Asignar el rol 'player' al nuevo usuario
             $user->assignRole('player');
 
             Alert::success('Éxito', 'Nuevo Jugador registrado exitosamente en el equipo para el torneo.');
             return redirect()->route('front.inscription');
         }
-    }
-
-    public function register(Request $request)
-    {
-        // Validar los datos del formulario
-        $request->validate([
-            'parent_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'neighborhood' => 'required|string|max:255',
-            'children.*.name' => 'required|string|max:255',
-            'children.*.age' => 'required|integer|min:1|max:18',
-            'children.*.uniform_size' => 'required|string|max:10',
-            'guardians.*.name' => 'required|string|max:255',
-            'guardians.*.relationship' => 'required|string|max:255',
-            'guardians.*.document' => 'required|string|max:255',
-        ]);
-
-        // Verificar si el DNI ya existe en la base de datos
-        $dni = $request->input('document');
-        $existingUser = User::where('dni', $dni)->first();
-
-        if ($existingUser) {
-            // Si el usuario ya existe, actualizar datos faltantes
-            $existingUser->update([
-                'name' => $existingUser->name ?: $request->input('parent_name'),
-                'phone' => $existingUser->name ?: $request->input('phone'),
-                'email' => $existingUser->email ?: $request->input('email'),
-                'password' => $existingUser->password ?: Hash::make($request->input('password')),
-                'document' => $existingUser->document ?: $request->input('document'),
-                'neighborhood' => $existingUser->neighborhood ?: $request->input('neighborhood'),
-                // 'parent_document_path' => $existingUser->parent_document_path ?: ($request->file('parent_document') ? $request->file('parent_document')->store('documents/parents') : $existingUser->parent_document_path),
-            ]);
-
-            $user = $existingUser;
-        } else {
-            // Crear un nuevo usuario si no existe
-            $user = User::create([
-                'name' => $request->input('parent_name'),
-                'email' => $request->input('email'),
-                'password' => Hash::make($request->input('password')),
-                'document' => $request->input('document'),
-                'dni' => $request->input('document'),
-                'neighborhood' => $request->input('neighborhood'),
-                // 'parent_document_path' => $request->file('parent_document')->store('documents/parents'),
-                'phone' => $request->input('phone'),
-            ]);
-        }
-
-        foreach ($request->input('children') as $index => $childData) {
-            $user->children()->create([
-                'name' => $childData['name'],
-                'age' => $childData['age'],
-                'uniform_size' => $childData['uniform_size'],
-                'document' => $childData['document'],
-                'birthdate' => $childData['birthdate'],
-            ]);
-        }
-
-        foreach ($request->input('guardians') as $guardianData) {
-            $user->guardians()->create([
-                'name' => $guardianData['name'],
-                'relationship' => $guardianData['relationship'],
-                'document' => $guardianData['document'],
-            ]);
-        }
-        // Autenticar al usuario
-        Alert::success('Éxito', 'Nuevo Registro de integrante Escuelita.');
-        return redirect()->route('front.school');
     }
 
     public function teamPage($teamId)

@@ -1,215 +1,269 @@
 <x-guest-layout>
-    <!-- END nav -->
-    <div class="hero-wrap" style="background-image: url('front/images/littleSchool/banner.jpg');" data-stellar-background-ratio="0.5">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="row no-gutters slider-text align-items-center justify-content-center" data-scrollax-parent="true">
-                <div class="col-md-7 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
-                <h1 class="mb-4" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Doing Nothing is Not An Option of Our Life</h1>
-                {{-- <p class="mb-5" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Created by <a href="#">Colorlib.com</a></p> --}}
-    
-                <p data-scrollax="properties: { translateY: '30%', opacity: 1.6 }"><a href="https://vimeo.com/45830194" class="btn btn-white btn-outline-white px-4 py-3 popup-vimeo"><span class="icon-play mr-2"></span>Ver Video</a></p>
+    <div class="container mt-4">
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(!$currentTournament)
+            <div class="alert alert-info text-center" role="alert">
+                No hay torneos planificados disponibles en este momento.
+            </div>
+        @else
+            <div class="banner-horizontal mb-4">
+                <p>Espacio para Banner Horizontal Superior (970x90px o similar)</p>
+            </div>
+
+            <div class="filter-section shadow-sm">
+                <h3 class="mb-3 text-info"><i class="bi bi-funnel-fill"></i> Filtrar Torneo y Fecha</h3>
+                <form action="{{ route('front.home') }}" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label for="tournament_id" class="form-label">Seleccionar Torneo:</label>
+                        <select name="tournament_id" id="tournament_id" class="form-select">
+                            @foreach($allTournaments as $tournament)
+                                <option value="{{ $tournament->id }}" {{ $currentTournament->id == $tournament->id ? 'selected' : '' }}>
+                                    {{ $tournament->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="filter_date" class="form-label">Seleccionar Fecha:</label>
+                        <select name="filter_date" id="filter_date" class="form-select">
+                            @forelse($dates as $date)
+                                <option value="{{ $date }}" {{ $filterDate == $date ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::parse($date)->locale('es')->isoFormat('dddd, D [de] MMMM [de]YYYY') }}
+                                </option>
+                            @empty
+                                <option value="">No hay fechas disponibles</option>
+                            @endforelse
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Aplicar Filtro</button>
+                    </div>
+                </form>
+            </div>
+
+            <h2 class="section-title text-center">{{ $currentTournament->name }}</h2>
+            <p class="text-center lead">Aquí puedes ver los partidos, la tabla de posiciones y las estadísticas de jugadores.</p>
+
+            <div class="row mt-5">
+                <div class="col-lg-9 main-content">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <span class="mb-0 fw-bold">
+                                        @if($filterDate)
+                                            <i class="bi bi-calendar-event"></i> Partidos del {{ \Carbon\Carbon::parse($filterDate)->locale('es')->isoFormat('dddd, D [de] MMMM [de]YYYY') }}
+                                        @else
+                                            <i class="bi bi-calendar-event"></i> No hay fechas de partidos disponibles
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    @if($fixtures->isEmpty())
+                                        <div class="alert alert-warning text-center" role="alert">
+                                            @if($filterDate)
+                                                No hay partidos programados para esta fecha en el torneo actual.
+                                            @else
+                                                No hay partidos registrados para este torneo.
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="list-group">
+                                            @foreach($fixtures as $fixture)
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div class="text-center flex-grow-1"> {{-- Added text-center and flex-grow-1 here --}}
+                                                        <h6 class="mb-0"> {{-- Changed h5 to h6 for smaller font --}}
+                                                            <strong>{{ $fixture->homeTeam->name ?? 'Equipo Local' }}</strong> vs <strong>{{ $fixture->awayTeam->name ?? 'Equipo Visitante' }}</strong>
+                                                        </h6>
+                                                        <small class="text-muted d-block mb-1"> {{-- Added d-block and mb-1 for new line and spacing --}}
+                                                            <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($fixture->match_date)->format('H:i') }}
+                                                        </small>
+                                                        <span class="badge {{ $fixture->status == 'completed' ? 'bg-success' : ($fixture->status == 'scheduled' ? 'bg-info' : 'bg-secondary') }}">
+                                                            {{ ucfirst($fixture->status) }}
+                                                        </span>
+                                                    </div>
+                                                    @if($fixture->status == 'completed')
+                                                        <span class="badge bg-dark fs-5 ms-3">{{ $fixture->home_team_score }} - {{ $fixture->away_team_score }}</span> {{-- Added ms-3 for margin --}}
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-success text-white">
+                                    <span class="mb-0"><i class="bi bi-trophy-fill"></i> Tabla de Posiciones</span>
+                                </div>
+                                <div class="card-body">
+                                    @if($currentTournament->positionTables->isEmpty())
+                                        <div class="alert alert-info text-center" role="alert">
+                                            La tabla de posiciones aún no está disponible para este torneo.
+                                        </div>
+                                    @else
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover table-sm">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th scope="col">#</th>
+                                                        <th scope="col">Equipo</th>
+                                                        <th scope="col">PJ</th>
+                                                        <th scope="col">PG</th>
+                                                        <th scope="col">PE</th>
+                                                        <th scope="col">PP</th>
+                                                        <th scope="col">GF</th>
+                                                        <th scope="col">GC</th>
+                                                        <th scope="col">DG</th>
+                                                        <th scope="col">Pts</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($currentTournament->positionTables as $index => $position)
+                                                        <tr>
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td>
+                                                                @if($position->team)
+                                                                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $position->team->name }}" width="20" height="20" class="me-2 rounded-circle">
+                                                                    <a href="{{ route('front.team.show', ['teamId' => $position->team->id]) }}" class="text-decoration-none text-dark">
+                                                                        {{ $position->team->name }}
+                                                                    </a>
+                                                                @else
+                                                                    Equipo Desconocido
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $position->matches_played ?? 0 }}</td>
+                                                            <td>{{ $position->wins ?? 0 }}</td>
+                                                            <td>{{ $position->draws ?? 0 }}</td>
+                                                            <td>{{ $position->losses ?? 0 }}</td>
+                                                            <td>{{ $position->goals_for ?? 0 }}</td>
+                                                            <td>{{ $position->goals_against ?? 0 }}</td>
+                                                            <td>{{ $position->goal_difference ?? 0 }}</td>
+                                                            <td><strong>{{ $position->points ?? 0 }}</strong></td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="banner-horizontal mt-5 mb-5">
+                        <p>Espacio para Banner Horizontal Medio (728x90px o similar)</p>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-danger text-white">
+                                    <span class="mb-0"><i class="bi bi-fire"></i> Máximos Goleadores</span>
+                                </div>
+                                <div class="card-body">
+                                    @if($topScorers->isEmpty())
+                                        <div class="alert alert-info text-center" role="alert">
+                                            Aún no hay goleadores registrados.
+                                        </div>
+                                    @else
+                                        <ul class="list-group list-group-flush">
+                                            @foreach($topScorers as $scorer)
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ $scorer->player->user->name ?? 'Jugador Desconocido' }}</strong>
+                                                        <br><small class="text-muted">{{ $scorer->player->team->name ?? 'Equipo Desconocido' }}</small>
+                                                    </div>
+                                                    <span class="badge bg-danger rounded-pill fs-6">{{ $scorer->goals }} goles</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-warning text-dark">
+                                    <span class="mb-0"><i class="bi bi-journal-x"></i> Más Tarjetas Amarillas</span>
+                                </div>
+                                <div class="card-body">
+                                    @if($yellowCards->isEmpty())
+                                        <div class="alert alert-info text-center" role="alert">
+                                            Aún no hay tarjetas amarillas registradas.
+                                        </div>
+                                    @else
+                                        <ul class="list-group list-group-flush">
+                                            @foreach($yellowCards as $player)
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ $player->player->user->name ?? 'Jugador Desconocido' }}</strong>
+                                                        <br><small class="text-muted">{{ $player->player->team->name ?? 'Equipo Desconocido' }}</small>
+                                                    </div>
+                                                    <span class="badge bg-warning text-dark rounded-pill fs-6">{{ $player->yellow_cards }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-dark text-white">
+                                    <span class="mb-0"><i class="bi bi-journal-x-fill"></i> Más Tarjetas Rojas</span>
+                                </div>
+                                <div class="card-body">
+                                    @if($redCards->isEmpty())
+                                        <div class="alert alert-info text-center" role="alert">
+                                            Aún no hay tarjetas rojas registradas.
+                                        </div>
+                                    @else
+                                        <ul class="list-group list-group-flush">
+                                            @foreach($redCards as $player)
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ $player->player->user->name ?? 'Jugador Desconocido' }}</strong>
+                                                        <br><small class="text-muted">{{ $player->player->team->name ?? 'Equipo Desconocido' }}</small>
+                                                    </div>
+                                                    <span class="badge bg-dark rounded-pill fs-6">{{ $player->red_cards }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 sidebar-banners">
+                    <span class="text-center mb-3 text-secondary">Publicidad</span>
+                    <div class="banner-vertical">
+                        <p>Banner Vertical (300x250px o similar)</p>
+                    </div>
+                    <div class="banner-vertical">
+                        <p>Banner Vertical (300x250px o similar)</p>
+                    </div>
+                    <div class="banner-vertical">
+                        <p>Banner Vertical (300x250px o similar)</p>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <div class="banner-horizontal mt-5">
+                <p>Espacio para Banner Horizontal Inferior (970x90px o similar)</p>
+            </div>
+        @endif
     </div>
-  
-    <section class="ftco-counter ftco-intro" id="section-counter">
-        <div class="container">
-            <div class="row no-gutters">
-                <div class="col-md-5 d-flex justify-content-center counter-wrap ftco-animate">
-                <div class="block-18 color-1 align-items-stretch">
-                    <div class="text">
-                        <span>Served Over</span>
-                    <strong class="number" data-number="1432805">0</strong>
-                    <span>Children in 190 countries in the world</span>
-                    </div>
-                </div>
-                </div>
-                <div class="col-md d-flex justify-content-center counter-wrap ftco-animate">
-                <div class="block-18 color-2 align-items-stretch">
-                    <div class="text">
-                        <h3 class="mb-4">Donate Money</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts.</p>
-                        <p><a href="#" class="btn btn-white px-3 py-2 mt-2">Donate Now</a></p>
-                    </div>
-                </div>
-                </div>
-                <div class="col-md d-flex justify-content-center counter-wrap ftco-animate">
-                <div class="block-18 color-3 align-items-stretch">
-                    <div class="text">
-                        <h3 class="mb-4">Be a Volunteer</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts.</p>
-                        <p><a href="#" class="btn btn-white px-3 py-2 mt-2">Be A Volunteer</a></p>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="ftco-section">
-    	<div class="container">
-    		<div class="row">
-                <div class="col-md-4 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 d-flex services p-3 py-4 d-block">
-                    <div class="icon d-flex mb-3"><span class="flaticon-donation-1"></span></div>
-                    <div class="media-body pl-4">
-                        <h3 class="heading">Make Donation</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic.</p>
-                    </div>
-                    </div>      
-                </div>
-                <div class="col-md-4 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 d-flex services p-3 py-4 d-block">
-                    <div class="icon d-flex mb-3"><span class="flaticon-charity"></span></div>
-                    <div class="media-body pl-4">
-                        <h3 class="heading">Become A Volunteer</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic.</p>
-                    </div>
-                    </div>      
-                </div>
-                <div class="col-md-4 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 d-flex services p-3 py-4 d-block">
-                    <div class="icon d-flex mb-3"><span class="flaticon-donation"></span></div>
-                    <div class="media-body pl-4">
-                        <h3 class="heading">Sponsorship</h3>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic.</p>
-                    </div>
-                    </div>    
-                </div>
-            </div>
-    	</div>
-    </section>
-
-    <section class="ftco-section bg-light">
-    	<div class="container-fluid">
-    		<div class="row justify-content-center mb-5 pb-3">
-            <div class="col-md-5 heading-section ftco-animate text-center">
-                <h2 class="mb-4">Our Causes</h2>
-                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-            </div>
-            </div>
-    		<div class="row">
-    			<div class="col-md-12 ftco-animate">
-    				<div class="carousel-cause owl-carousel">
-	    				<div class="item">
-	    					<div class="cause-entry">
-		    					<a href="#" class="img" style="background-image: url(front/images/cause-1.jpg);"></a>
-		    					<div class="text p-3 p-md-4">
-		    						<h3><a href="#">Clean water for the urban area</a></h3>
-		    						<p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>
-		    						<span class="donation-time mb-3 d-block">Last donation 1w ago</span>
-                                    <div class="progress custom-progress-success">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 28%" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <span class="fund-raised d-block">$12,000 raised of $30,000</span>
-		    					</div>
-		    				</div>
-	    				</div>
-	    				<div class="item">
-	    					<div class="cause-entry">
-		    					<a href="#" class="img" style="background-image: url(front/images/cause-2.jpg);"></a>
-		    					<div class="text p-3 p-md-4">
-		    						<h3><a href="#">Clean water for the urban area</a></h3>
-		    						<p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>
-		    						<span class="donation-time mb-3 d-block">Last donation 1w ago</span>
-                                    <div class="progress custom-progress-success">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 28%" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <span class="fund-raised d-block">$12,000 raised of $30,000</span>
-		    					</div>
-		    				</div>
-	    				</div>
-	    				<div class="item">
-	    					<div class="cause-entry">
-		    					<a href="#" class="img" style="background-image: url(front/images/cause-3.jpg);"></a>
-		    					<div class="text p-3 p-md-4">
-		    						<h3><a href="#">Clean water for the urban area</a></h3>
-		    						<p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>
-		    						<span class="donation-time mb-3 d-block">Last donation 1w ago</span>
-                                    <div class="progress custom-progress-success">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 28%" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <span class="fund-raised d-block">$12,000 raised of $30,000</span>
-		    					</div>
-		    				</div>
-	    				</div>
-	    				<div class="item">
-	    					<div class="cause-entry">
-		    					<a href="#" class="img" style="background-image: url(front/images/cause-4.jpg);"></a>
-		    					<div class="text p-3 p-md-4">
-		    						<h3><a href="#">Clean water for the urban area</a></h3>
-		    						<p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>
-		    						<span class="donation-time mb-3 d-block">Last donation 1w ago</span>
-                                    <div class="progress custom-progress-success">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 28%" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <span class="fund-raised d-block">$12,000 raised of $30,000</span>
-		    					</div>
-		    				</div>
-	    				</div>
-	    				<div class="item">
-	    					<div class="cause-entry">
-		    					<a href="#" class="img" style="background-image: url(front/images/cause-5.jpg);"></a>
-		    					<div class="text p-3 p-md-4">
-		    						<h3><a href="#">Clean water for the urban area</a></h3>
-		    						<p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>
-		    						<span class="donation-time mb-3 d-block">Last donation 1w ago</span>
-                                    <div class="progress custom-progress-success">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 28%" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <span class="fund-raised d-block">$12,000 raised of $30,000</span>
-		    					</div>
-		    				</div>
-	    				</div>
-	    				<div class="item">
-	    					<div class="cause-entry">
-		    					<a href="#" class="img" style="background-image: url(front/images/cause-6.jpg);"></a>
-		    					<div class="text p-3 p-md-4">
-		    						<h3><a href="#">Clean water for the urban area</a></h3>
-		    						<p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>
-		    						<span class="donation-time mb-3 d-block">Last donation 1w ago</span>
-                                    <div class="progress custom-progress-success">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 28%" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <span class="fund-raised d-block">$12,000 raised of $30,000</span>
-		    					</div>
-		    				</div>
-	    				</div>
-    				</div>
-    			</div>
-    		</div>
-    	</div>
-    </section>
-
-
-		
-    <section class="ftco-section-3 img" style="background-image: url(front/images/bg_3.jpg);">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="row d-md-flex">
-                <div class="col-md-6 d-flex ftco-animate">
-                    <div class="img img-2 align-self-stretch" style="background-image: url(front/images/bg_4.jpg);"></div>
-                </div>
-                <div class="col-md-6 volunteer pl-md-5 ftco-animate">
-                    <h3 class="mb-3">Be a volunteer</h3>
-                    <form action="#" class="volunter-form">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Your Name">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Your Email">
-                        </div>
-                        <div class="form-group">
-                            <textarea name="" id="" cols="30" rows="3" class="form-control" placeholder="Message"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <input type="submit" value="Send Message" class="btn btn-white py-3 px-5">
-                        </div>
-                    </form>
-                </div>    			
-            </div>
-        </div>
-    </section>
 </x-guest-layout>

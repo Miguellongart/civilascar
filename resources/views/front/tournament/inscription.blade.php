@@ -1,163 +1,133 @@
 <x-guest-layout>
-    <!-- END nav -->
-    {{-- <div class="hero-wrap" style="background-image: url('front/images/littleSchool/banner.jpg');" data-stellar-background-ratio="0.5">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="row no-gutters slider-text align-items-center justify-content-center" data-scrollax-parent="true">
-                <div class="col-md-7 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
-                    <h1 class="mb-4" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }" style="font-weight: 900;">Liga Cafetera</h1>
-                </div>
+    <div class="container mt-5 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Inscripción de Jugador</h3>
+                <p class="mb-0">Completa los datos para registrar un nuevo jugador.</p>
             </div>
-        </div>
-    </div> --}}
-    <section class="ftco-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h3 class="mb-3">Registro de Jugador</h3>
-                    <form method="POST" action="{{ route('front.tournament.register') }}" class="volunter-form" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group">
-                            <label for="tournament_id">Selecciona el Torneo</label>
-                            <select name="tournament_id" id="tournament_id" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                                <option value="">Selecciona un Torneo</option>
-                                @foreach($tournaments as $tournament)
-                                    <option value="{{ $tournament->id }}" {{ old('tournament_id') == $tournament->id ? 'selected' : '' }}>
-                                        {{ $tournament->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('tournament_id')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="team_id">Selecciona el Equipo</label>
-                            <select name="team_id" id="team_id" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                                <option value="">Selecciona un Equipo</option>
-                            </select>
-                            @error('team_id')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Nombre</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                            @error('name')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="dni">DNI/Documento</label>
-                            <input type="text" name="dni" class="form-control" value="{{ old('dni') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                            @error('dni')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        {{-- Otros campos omitidos --}}
-                        <div class="form-group">
-                            <label for="position">Selecciona la Posición</label>
-                            <select name="position" id="position" class="form-control" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                                <option value="Arquero" {{ old('position') == 'Arquero' ? 'selected' : '' }}>Arquero (ARQ)</option>
-                                <option value="Defensa" {{ old('position') == 'Defensa' ? 'selected' : '' }}>Defensa (DF)</option>
-                                <option value="Medio Centro" {{ old('position') == 'Medio Centro' ? 'selected' : '' }}>Medio Centro (MC)</option>
-                                <option value="Delantero" {{ old('position') == 'Delantero' ? 'selected' : '' }}>Delantero (D)</option>
-                            </select>
-                            @error('position')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="number">Número Camiseta</label>
-                            <input type="number" name="number" class="form-control" value="{{ old('number') }}" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;" required>
-                            @error('number')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="photo">Foto del Jugador</label>
-                            <input type="file" name="photo" class="form-control-file" style="border: 2px solid rgba(0, 0, 0, 0.7); color:rgba(0, 0, 0, 0.7) !important;">
-                            @error('photo')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <input type="submit" value="Registrar Jugador" class="btn btn-white py-3 px-5">
-                        </div>
-                    </form>
-                </div>
-                                
-                <div class="col-md-6">
-                    <h3 class="mb-3">Información del Torneo</h3>
-                    <div id="tournament_info" style="display: none;">
-                        <p><strong>Torneo:</strong> <span id="tournament_name"></span></p>
-                        <p><strong>Inicio:</strong> <span id="tournament_start_date"></span></p>
-                        <p><strong>Fin:</strong> <span id="tournament_end_date"></span></p>
-                        <p><strong>Ubicación:</strong> <span id="tournament_location"></span></p>
-                        <p><strong>Estado:</strong> <span id="tournament_status"></span></p>
+            <div class="card-body p-4">
+
+                {{-- Mostrar mensajes de éxito o error de SweetAlert --}}
+                @include('sweetalert::alert')
+
+                {{-- Mostrar errores de validación --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>Error de Validación!</h4>
+                        <p>Por favor, corrige los siguientes errores:</p>
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
+                @endif
+
+                <form action="{{ route('front.tournament.register') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+
+                    {{-- Sección de Datos Personales --}}
+                    <h5 class="mb-3 text-primary"><i class="bi bi-person-lines-fill me-2"></i>Datos Personales</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control @error('first_name') is-invalid @enderror" id="first_name" name="first_name" value="{{ old('first_name') }}" required>
+                            @error('first_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Apellido:</label>
+                            <input type="text" class="form-control @error('last_name') is-invalid @enderror" id="last_name" name="last_name" value="{{ old('last_name') }}" required>
+                            @error('last_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="date_of_birth" class="form-label">Fecha de Nacimiento:</label>
+                            <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
+                            @error('date_of_birth')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone_number" class="form-label">Número de Contacto:</label>
+                            <input type="text" class="form-control @error('phone_number') is-invalid @enderror" id="phone_number" name="phone_number" value="{{ old('phone_number') }}" placeholder="+54 9 11 1234 5678" required>
+                            @error('phone_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dni" class="form-label">DNI:</label>
+                            <input type="text" class="form-control @error('dni') is-invalid @enderror" id="dni" name="dni" value="{{ old('dni') }}" required>
+                            @error('dni')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Correo Electrónico (Opcional):</label>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="ejemplo@dominio.com">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    {{-- Sección de Datos del Jugador --}}
+                    <h5 class="mb-3 text-success"><i class="bi bi-dribbble me-2"></i>Datos del Jugador</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="position" class="form-label">Posición:</label>
+                            <input type="text" class="form-control @error('position') is-invalid @enderror" id="position" name="position" value="{{ old('position') }}" placeholder="Ej: Delantero, Defensa" required>
+                            @error('position')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="number" class="form-label">Número de Camiseta:</label>
+                            <input type="number" class="form-control @error('number') is-invalid @enderror" id="number" name="number" value="{{ old('number') }}" min="1" max="99" required>
+                            @error('number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    {{-- Sección de Archivos --}}
+                    <h5 class="mb-3 text-info"><i class="bi bi-upload me-2"></i>Documentos y Fotos</h5>
+                    <div class="mb-3">
+                        <label for="player_photo" class="file-input-label">Foto del Jugador (Opcional):</label>
+                        <input type="file" class="form-control @error('player_photo') is-invalid @enderror" id="player_photo" name="player_photo" accept="image/*">
+                        @error('player_photo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Max. 2MB. Formatos: JPG, PNG.</small>
+                    </div>
+                    <div class="mb-4">
+                        <label for="document_photo" class="file-input-label">Foto del Documento de Identidad (Opcional):</label>
+                        <input type="file" class="form-control @error('document_photo') is-invalid @enderror" id="document_photo" name="document_photo" accept="image/*">
+                        @error('document_photo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Max. 2MB. Formatos: JPG, PNG. Asegúrate de que sea legible.</small>
+                    </div>
+
+                    {{-- Campos ocultos para Team ID y Tournament ID --}}
+                    {{-- Estos valores deberían ser pasados desde el controlador, por ejemplo: --}}
+                    {{-- return view('your.view', ['teamId' => $team->id, 'tournamentId' => $tournament->id]); --}}
+                    <input type="hidden" name="team_id" value="{{ $teamId ?? '' }}">
+                    <input type="hidden" name="tournament_id" value="{{ $tournamentId ?? '' }}">
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-send-fill me-2"></i>Registrar Jugador</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </section>
+    </div>
 
-    @push('guest_js')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tournamentSelect = document.getElementById('tournament_id');
-            const teamSelect = document.getElementById('team_id');
-
-            tournamentSelect.addEventListener('change', function () {
-                const tournamentId = this.value;
-                console.log(tournamentId);
-                
-                // Limpiar los equipos anteriores
-                teamSelect.innerHTML = '<option value="">Selecciona un Equipo</option>';
-
-                if (tournamentId) {
-                    // Obtener equipos para el torneo seleccionado
-                    fetch(`/tournament/${tournamentId}/teams`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            data.forEach(team => {
-                                const option = document.createElement('option');
-                                option.value = team.id;
-                                option.textContent = team.name;
-                                teamSelect.appendChild(option);
-                            });
-
-                            // Mostrar información del torneo
-                            fetch(`/tournament/${tournamentId}`)
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Network response was not ok');
-                                    }
-                                    return response.json();
-                                })
-                                .then(tournament => {
-                                    document.getElementById('tournament_name').textContent = tournament.name;
-                                    document.getElementById('tournament_start_date').textContent = tournament.start_date;
-                                    document.getElementById('tournament_end_date').textContent = tournament.end_date;
-                                    document.getElementById('tournament_location').textContent = tournament.location;
-                                    document.getElementById('tournament_status').textContent = tournament.status;
-                                    document.getElementById('tournament_info').style.display = 'block';
-                                })
-                                .catch(error => console.error('Error fetching tournament info:', error));
-                        })
-                        .catch(error => console.error('Error fetching teams:', error));
-                } else {
-                    document.getElementById('tournament_info').style.display = 'none';
-                }
-            });
-        });
-    </script>
-    @endpush
-
-    @push('guest_css')
-    @endpush
 </x-guest-layout>

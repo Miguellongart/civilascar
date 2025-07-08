@@ -1,153 +1,181 @@
 <x-guest-layout>
-    <section class="ftco-section">
-        <div class="container">
-            <h1 class="mb-5 text-center fs-1 fw-bold">{{ $team->name }}</h1>
+    <div class="container mt-4">
+        @if(!$team)
+            <div class="alert alert-danger text-center" role="alert">
+                Equipo no encontrado.
+            </div>
+        @else
+            <div class="team-header shadow-sm">
+                @if($team->logo)
+                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $team->name }}" class="team-logo mb-3">
+                @else
+                    {{-- Usa una imagen por defecto genérica o el logo de la liga --}}
+                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Logo por defecto" class="team-logo mb-3">
+                @endif
+                <h1 class="display-4 mb-1 text-primary">{{ $team->name }}</h1>
+                <p class="lead text-muted">{{ $team->description ?? 'Sin descripción.' }}</p>
 
-            {{-- Filtro único por Torneo --}}
-            <div class="mb-4">
-                <h3 class="fs-4 fw-semibold mb-3">Filtrar por Torneo</h3>
-                <select id="globalTournamentFilter" class="form-select">
-                    <option value="">Selecciona un torneo</option>
-                    @foreach(array_unique(array_merge(
-                        $playersByTournament->keys()->toArray(),
-                        $fixturesByTournament->keys()->toArray(),
-                        array_keys($topScorersByTournament)
-                    )) as $tournamentName)
-                    <option value="{{ $tournamentName }}" {{ $currentTournament && $currentTournament->name === $tournamentName ? 'selected' : '' }}>
-                        {{ $tournamentName }}
-                    </option>
-                    @endforeach
-                </select>
+                @if($currentTournament)
+                    <p class="mt-3">
+                        <span class="badge bg-info text-dark fs-6"><i class="bi bi-trophy-fill"></i> Torneo Actual: {{ $currentTournament->name }}</span>
+                    </p>
+                @endif
             </div>
 
-            <div class="row g-4">
-                {{-- Jugadores por Torneo --}}
-                <div class="col-lg-4">
-                    <div class="bg-white rounded shadow p-3 h-100">
-                        <h3 class="fs-5 fw-semibold mb-3">Jugadores por Torneo</h3>
-                        <div id="playersContainer">
-                            @foreach($playersByTournament as $tournamentName => $players)
-                            <div class="mb-4 tournament-group" data-tournament="{{ $tournamentName }}" style="{{ $currentTournament && $currentTournament->name !== $tournamentName ? 'display: none;' : '' }}">
-                                <h4 class="fs-6 fw-semibold mb-2">{{ $tournamentName }}</h4>
-                                <ul class="list-group">
-                                    @forelse($players as $player)
-                                    <li class="list-group-item">
-                                        {{ $player->user->name }} - {{ $player->position }} - Nº {{ $player->number }}
-                                    </li>
-                                    @empty
-                                    <li class="list-group-item">No hay jugadores en este torneo.</li>
-                                    @endforelse
-                                </ul>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
+            <div class="banner-horizontal mb-4">
+                <p>Espacio para Banner Horizontal Superior (970x90px o similar)</p>
+            </div>
 
-                {{-- Partidos por Torneo --}}
-                <div class="col-lg-4">
-                    <div class="bg-white rounded shadow p-3 h-100">
-                        <h3 class="fs-5 fw-semibold mb-3">Partidos por Torneo</h3>
-                        <div id="fixturesContainer">
-                            @forelse($fixturesByTournament as $tournamentName => $fixtures)
-                            <div class="mb-4 tournament-group" data-tournament="{{ $tournamentName }}" style="{{ $currentTournament && $currentTournament->name !== $tournamentName ? 'display: none;' : '' }}">
-                                <h4 class="fs-6 fw-semibold mb-2">{{ $tournamentName }}</h4>
-                                <ul class="list-group">
-                                    @foreach($fixtures as $fixture)
-                                    @php
-                                        $isHome = $fixture->home_team_id === $team->id;
-                                        $isAway = $fixture->away_team_id === $team->id;
-                                        $resultClass = 'text-muted';
+            <h2 class="text-center mb-4 text-secondary">Historial del Equipo por Torneo</h2>
 
-                                        if ($fixture->status === 'completed') {
-                                            if ($fixture->home_team_score === $fixture->away_team_score) {
-                                                $resultClass = 'text-warning';
-                                            } elseif (($isHome && $fixture->home_team_score > $fixture->away_team_score) || ($isAway && $fixture->away_team_score > $fixture->home_team_score)) {
-                                                $resultClass = 'text-success';
-                                            } else {
-                                                $resultClass = 'text-danger';
-                                            }
-                                        }
-                                    @endphp
-                                    <li class="list-group-item">
+            <div class="row">
+                <div class="col-lg-9 main-content">
+                    <div class="accordion" id="tournamentAccordion">
+                        @forelse($team->tournaments as $key => $tournament)
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ $tournament->id }}">
+                                    <button class="accordion-button {{ $key == 0 ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $tournament->id }}" aria-expanded="{{ $key == 0 ? 'true' : 'false' }}" aria-controls="collapse{{ $tournament->id }}">
+                                        <i class="bi bi-trophy-fill me-2"></i> {{ $tournament->name }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ $tournament->id }}" class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}" aria-labelledby="heading{{ $tournament->id }}" data-bs-parent="#tournamentAccordion">
+                                    <div class="accordion-body">
                                         <div class="row">
-                                            <div class="col-12 mb-1">
-                                                <small class="text-secondary">{{ \Carbon\Carbon::parse($fixture->match_date)->format('d/m/Y H:i') }}</small>
-                                            </div>
-                                            <div class="col-8">
-                                                {{ $fixture->homeTeam->name }} vs {{ $fixture->awayTeam->name }}
-                                            </div>
-                                            <div class="col-4 text-end fw-bold {{ $resultClass }}">
-                                                @if ($fixture->status === 'completed')
-                                                {{ $fixture->home_team_score }} - {{ $fixture->away_team_score }}
+                                            <div class="col-6">
+                                                <h5 class="mt-2 mb-3 text-primary"><i class="bi bi-person-fill"></i> Plantilla para este Torneo</h5>
+                                                @php
+                                                    $playersForThisTournament = $playersByTournament[$tournament->name] ?? collect();
+                                                @endphp
+                                                @if($playersForThisTournament->isEmpty())
+                                                    <div class="alert alert-info text-center" role="alert">
+                                                        No hay jugadores registrados para este torneo.
+                                                    </div>
                                                 @else
-                                                    Por jugar
+                                                    <ul class="list-group list-group-flush mb-4">
+                                                        @foreach($playersForThisTournament as $player)
+                                                            <li class="list-group-item d-flex align-items-center">
+                                                                @if($player->user->profile_photo_path)
+                                                                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $player->user->name }}" class="player-img">
+                                                                @else
+                                                                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Jugador" class="player-img">
+                                                                @endif
+                                                                <div>
+                                                                    <strong>{{ $player->user->name ?? 'Jugador Desconocido' }}</strong>
+                                                                    <small class="d-block text-muted">#{{ $player->number ?? 'N/A' }} - {{ $player->position ?? 'Sin posición' }}</small>
+                                                                </div>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                                            </div>
+                                            <div class="col-6">
+                                                <h5 class="mt-2 mb-3 text-danger"><i class="bi bi-fire"></i> Goleadores del Equipo en este Torneo</h5>
+                                                @php
+                                                    $scorersForThisTournament = $topScorersByTournament[$tournament->name] ?? collect();
+                                                @endphp
+                                                @if($scorersForThisTournament->isEmpty())
+                                                    <div class="alert alert-info text-center" role="alert">
+                                                        No hay goleadores registrados en este torneo para el equipo.
+                                                    </div>
+                                                @else
+                                                    <ul class="list-group list-group-flush mb-4">
+                                                        @foreach($scorersForThisTournament as $scorer)
+                                                            <li class="list-group-item scorer-item">
+                                                                <div class="player-info">
+                                                                    @if($scorer->player->user->profile_photo_path)
+                                                                        <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $scorer->player->user->name }}" class="player-img">
+                                                                    @else
+                                                                        <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Goleador" class="player-img">
+                                                                    @endif
+                                                                    <strong>{{ $scorer->player->user->name ?? 'Jugador Desconocido' }}</strong>
+                                                                </div>
+                                                                <span class="badge bg-danger rounded-pill goals-badge">{{ $scorer->goals }} goles</span>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
                                                 @endif
                                             </div>
                                         </div>
-                                    </li>
-                                    @endforeach
-                                </ul>
+                                        
+                                        <h5 class="mt-2 mb-3 text-info"><i class="bi bi-calendar-event"></i> Partidos Jugados en este Torneo</h5>
+                                        @php
+                                            $fixturesForThisTournament = $fixturesByTournament[$tournament->name] ?? collect();
+                                        @endphp
+                                        @if($fixturesForThisTournament->isEmpty())
+                                            <div class="alert alert-info text-center" role="alert">
+                                                No hay partidos registrados para este torneo.
+                                            </div>
+                                        @else
+                                            <div class="row">
+                                                @foreach($fixturesForThisTournament as $fixture)
+                                                    <div class="col-md-6 col-lg-4 mb-3">
+                                                        <div class="card fixture-card">
+                                                            <div class="fixture-header">
+                                                                <small class="text-muted">{{ \Carbon\Carbon::parse($fixture->match_date)->locale('es')->isoFormat('D MMM YYYY') }}</small>
+                                                                <span class="badge {{ $fixture->status == 'completed' ? 'bg-success' : ($fixture->status == 'scheduled' ? 'bg-primary' : 'bg-secondary') }}">
+                                                                    {{ ucfirst($fixture->status) }}
+                                                                </span>
+                                                            </div>
+                                                            <div class="fixture-body text-center">
+                                                                <small class="text-muted d-block mb-1">
+                                                                    <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($fixture->match_date)->format('H:i') }}
+                                                                </small>
+                                                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                                                    <div class="text-center mx-2">
+                                                                        @if($fixture->homeTeam->logo)
+                                                                            <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $fixture->homeTeam->name }}" width="40" height="40" class="rounded-circle">
+                                                                        @else
+                                                                            <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Local" width="40" height="40" class="rounded-circle">
+                                                                        @endif
+                                                                        <p class="mb-0 team-name-small mt-1"><strong>{{ $fixture->homeTeam->name ?? 'Local' }}</strong></p>
+                                                                    </div>
+                                                                    <span class="team-vs mx-2">VS</span>
+                                                                    <div class="text-center mx-2">
+                                                                        @if($fixture->awayTeam->logo)
+                                                                            <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $fixture->awayTeam->name }}" width="40" height="40" class="rounded-circle">
+                                                                        @else
+                                                                            <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Visitante" width="40" height="40" class="rounded-circle">
+                                                                        @endif
+                                                                        <p class="mb-0 team-name-small mt-1"><strong>{{ $fixture->awayTeam->name ?? 'Visitante' }}</strong></p>
+                                                                    </div>
+                                                                </div>
+                                                                @if($fixture->status == 'completed')
+                                                                    <div class="score text-dark">{{ $fixture->home_team_score }} - {{ $fixture->away_team_score }}</div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                            @empty
-                            <p>No hay partidos registrados.</p>
-                            @endforelse
-                        </div>
+                        @empty
+                            <div class="alert alert-info text-center" role="alert">
+                                Este equipo no ha participado en ningún torneo registrado.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
-                {{-- Goleadores por Torneo --}}
-                <div class="col-lg-4">
-                    <div class="bg-white rounded shadow p-3 h-100">
-                        <h3 class="fs-5 fw-semibold mb-3">Goleadores del equipo por torneo</h3>
-                        <div id="scorersContainer">
-                            @foreach($topScorersByTournament as $tournamentName => $scorers)
-                            <div class="mb-4 tournament-group" data-tournament="{{ $tournamentName }}" style="{{ $currentTournament && $currentTournament->name !== $tournamentName ? 'display: none;' : '' }}">
-                                <h4 class="fs-6 fw-semibold mb-2">{{ $tournamentName }}</h4>
-                                <div class="table-responsive">
-                                    <table class="table table-striped text-center">
-                                        <thead>
-                                            <tr>
-                                                <th>Jugador</th>
-                                                <th>Número</th>
-                                                <th>Posición</th>
-                                                <th>Goles</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($scorers as $scorer)
-                                            <tr>
-                                                <td>{{ $scorer->player->user->name }}</td>
-                                                <td>{{ $scorer->player->number }}</td>
-                                                <td>{{ $scorer->player->position }}</td>
-                                                <td><strong>{{ $scorer->goals }}</strong></td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
+                <div class="col-lg-3 sidebar-banners">
+                    <h4 class="text-center mb-3 text-secondary">Publicidad</h4>
+                    <div class="banner-vertical">
+                        <p>Banner Vertical (300x250px o similar)</p>
+                    </div>
+                    <div class="banner-vertical">
+                        <p>Banner Vertical (300x250px o similar)</p>
+                    </div>
+                    <div class="banner-vertical">
+                        <p>Banner Vertical (300x250px o similar)</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <script>
-        document.getElementById('globalTournamentFilter').addEventListener('change', function () {
-            const selectedTournament = this.value;
-            document.querySelectorAll('.tournament-group').forEach(group => {
-                group.style.display = group.getAttribute('data-tournament') === selectedTournament || !selectedTournament ? 'block' : 'none';
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const currentTournament = "{{ $currentTournament ? $currentTournament->name : '' }}";
-            document.querySelectorAll('.tournament-group').forEach(group => {
-                group.style.display = group.getAttribute('data-tournament') === currentTournament || !currentTournament ? 'block' : 'none';
-            });
-        });
-    </script>
+            <div class="banner-horizontal mt-5">
+                <p>Espacio para Banner Horizontal Inferior (970x90px o similar)</p>
+            </div>
+        @endif
+    </div>
 </x-guest-layout>
