@@ -186,9 +186,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    {{-- <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Torneos</a>
-                    </li> --}}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="https://ascar.org.ar/">
+                             <img src="https://ascar.org.ar/wp-content/uploads/2025/06/Frame-290109.png" alt="ASCARA" width="" height="30" class="me-2">
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -198,7 +200,9 @@
 
     <footer class="bg-light text-center text-lg-start mt-5 py-3">
         <div class="container text-center">
-            <p>&copy; {{ date('Y') }} Mi Liga. Todos los derechos reservados.</p>
+            <p>&copy; {{ date('Y') }} Mi Liga. Desarrollada y diseñada por <a href="https://miguellongart.com"
+                    target="_blank" rel="noopener noreferrer" class="text-decoration-none text-primary fw-bold">Miguel
+                    Longart</a>. Todos los derechos reservados.</p>
         </div>
     </footer>
 
