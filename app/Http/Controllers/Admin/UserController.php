@@ -157,8 +157,13 @@ class UserController extends Controller
     public function permission(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $user->givePermissionTo($request->permissions);
 
-        return redirect()->route('admin.users.index', $user->id)->with('success', 'Actualizado con Exito');
+        // Obtener nombres desde los IDs
+        $permissionNames = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
+
+        // Sincronizar permisos (opcional: elimina los anteriores)
+        $user->syncPermissions($permissionNames); // mejor que givePermissionTo si estás actualizando
+
+        return redirect()->route('admin.users.index', $user->id)->with('success', 'Permisos actualizados con éxito');
     }
 }
