@@ -118,7 +118,13 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="position" class="form-label">Posición:</label>
-                            <input type="text" class="form-control @error('position') is-invalid @enderror" id="position" name="position" value="{{ old('position') }}" placeholder="Ej: Delantero, Defensa" required>
+                            <select name="position" id="position" class="form-select @error('position') is-invalid @enderror" required>
+                                <option value="">-- Selecciona una posición --</option>
+                                <option value="Arquero" {{ old('position') == 'Arquero' ? 'selected' : '' }}>Arquero</option>
+                                <option value="Defensa" {{ old('position') == 'Defensa' ? 'selected' : '' }}>Defensa</option>
+                                <option value="Pivote" {{ old('position') == 'Pivote' ? 'selected' : '' }}>Pivote</option>
+                                <option value="Delantero" {{ old('position') == 'Delantero' ? 'selected' : '' }}>Delantero</option>
+                            </select>
                             @error('position')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
