@@ -10,7 +10,7 @@
         <x-adminlte-card>
             <div class="row">
                 <div class="col-md-4">
-                    <x-adminlte-profile-widget name="{{ $team->name }}" desc="{{ $team->description }}" theme="teal" img="{{ asset('storage/' . $team->logo) }}">
+                    <x-adminlte-profile-widget name="{{ $team->name }}" desc="{{ $team->description }}" theme="teal" img="{{ asset('front/images/liga cafetera.png') }}">
                         <x-adminlte-profile-col-item title="Entrenador" text="{{ $team->coach }}" url="#"/>
                         <x-adminlte-profile-col-item title="Estadio" text="{{ $team->home_stadium }}" url="#"/>
                     </x-adminlte-profile-widget>
@@ -69,12 +69,13 @@
                 </thead>
                 <tbody>
                     @foreach ($players as $player)
+                        {{-- {{ dd($player) }} --}}
                         <tr>
                             <td>{{ $player->user->name }}</td>
                             <td>{{ $player->user->dni }}</td>
                             <td>{{ $player->position }}</td>
                             <td>{{ $player->number }}</td>
-                            <td><img src="{{ asset('storage/' . $player->photo) }}" alt="{{ $player->name }}" width="50"></td>
+                            <td><img src="{{ asset('storage/' . $player->player_photo_path) }}" alt="{{ $player->name }}" width="50"></td>
                             <td>
                                 <!-- Botón para actualizar -->
                                 <a href="{{ route('admin.player.edit', $player->id) }}" class="btn btn-sm btn-primary mx-1 shadow" title="Actualizar">

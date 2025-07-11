@@ -26,6 +26,43 @@
 
                 <form action="{{ route('front.tournament.register') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    {{-- Sección de Datos Torneo --}}
+                    <h5 class="mb-3 text-warning"><i class="bi bi-person-lines-fill me-2"></i>Datos Torneo</h5>
+
+                    {{-- Información del torneo --}}
+                    <div class="card border-primary mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-trophy me-2"></i> Información del Torneo
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">{{ $tournament->name ?? 'Torneo no disponible' }}</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Fecha de Inicio:</strong> {{ \Carbon\Carbon::parse($tournament->start_date)->format('d/m/Y') ?? '-' }}</li>
+                                <li class="list-group-item"><strong>Fecha de Finalización:</strong> {{ \Carbon\Carbon::parse($tournament->end_date)->format('d/m/Y') ?? '-' }}</li>
+                                <li class="list-group-item"><strong>Ubicación:</strong> {{ $tournament->location ?? 'No especificada' }}</li>
+                                <li class="list-group-item"><strong>Descripción:</strong> {{ $tournament->description ?? 'Sin descripción' }}</li>
+                            </ul>
+
+                            {{-- Campo oculto para enviar ID del torneo --}}
+                            <input type="hidden" name="tournament_id" value="{{ $tournament->id ?? '' }}">
+
+                            {{-- Selector de equipos --}}
+                            <div class="mt-4">
+                                <label for="team_id" class="form-label">Selecciona un equipo:</label>
+                                <select name="team_id" id="team_id" class="form-select @error('team_id') is-invalid @enderror" required>
+                                    <option value="">-- Selecciona una opción --</option>
+                                    @foreach ($teams as $team)
+                                        <option value="{{ $team->id }}" {{ old('team_id') == $team->id ? 'selected' : '' }}>
+                                            {{ $team->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('team_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- Sección de Datos Personales --}}
                     <h5 class="mb-3 text-primary"><i class="bi bi-person-lines-fill me-2"></i>Datos Personales</h5>
@@ -116,12 +153,6 @@
                         <small class="form-text text-muted">Max. 2MB. Formatos: JPG, PNG. Asegúrate de que sea legible.</small>
                     </div>
 
-                    {{-- Campos ocultos para Team ID y Tournament ID --}}
-                    {{-- Estos valores deberían ser pasados desde el controlador, por ejemplo: --}}
-                    {{-- return view('your.view', ['teamId' => $team->id, 'tournamentId' => $tournament->id]); --}}
-                    <input type="hidden" name="team_id" value="{{ $teamId ?? '' }}">
-                    <input type="hidden" name="tournament_id" value="{{ $tournamentId ?? '' }}">
-
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-send-fill me-2"></i>Registrar Jugador</button>
                     </div>
@@ -129,5 +160,33 @@
             </div>
         </div>
     </div>
+    @section('script')
+        @if(session('swal_success'))
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: '{{ session('swal_success') }}',
+                    confirmButtonColor: '#3085d6'
+                });
+            </script>
+        @endif
+
+        @if(session('swal_info'))
+            <script>
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Información',
+                    text: '{{ session('swal_info') }}',
+                    confirmButtonColor: '#3085d6'
+                });
+            </script>
+        @endif
+
+        {{-- Otros scripts personalizados --}}
+        <script>
+            console.log('hola mundo');
+        </script>
+    @endsection
 
 </x-guest-layout>

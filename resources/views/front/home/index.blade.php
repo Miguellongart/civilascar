@@ -47,6 +47,14 @@
                 </form>
             </div>
 
+            <div class="row mb-5">
+                <div class="col-md-8">
+                </div>
+                <div class="col-md-4">
+                    <a href="{{route('front.inscription')}}" class="btn btn-primary">Registrar Jugador</a>
+                </div>
+            </div>
+
             <h2 class="section-title text-center">{{ $currentTournament->name }}</h2>
             <p class="text-center lead">Aquí puedes ver los partidos, la tabla de posiciones y las estadísticas de jugadores.</p>
 
