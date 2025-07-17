@@ -234,7 +234,7 @@ class FrontController extends Controller
                 }),
             ],
             'player_photo' => 'nullable|image|max:2048',
-            'document_photo' => 'nullable|image|max:2048',
+            'document_photo' => 'required|image|max:2048',
             'team_id' => 'required|exists:teams,id',
             'tournament_id' => 'required|exists:tournaments,id',
         ]);

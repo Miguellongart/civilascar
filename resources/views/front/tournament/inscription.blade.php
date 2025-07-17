@@ -151,8 +151,8 @@
                         <small class="form-text text-muted">Max. 2MB. Formatos: JPG, PNG.</small>
                     </div>
                     <div class="mb-4">
-                        <label for="document_photo" class="file-input-label">Foto del Documento de Identidad (Opcional):</label>
-                        <input type="file" class="form-control @error('document_photo') is-invalid @enderror" id="document_photo" name="document_photo" accept="image/*">
+                        <label for="document_photo" class="file-input-label">Foto del Documento de Identidad <span style="color: red; font-weight: bold">(Requeridos)</span>:</label>
+                        <input type="file" class="form-control @error('document_photo') is-invalid @enderror" id="document_photo" name="document_photo" accept="image/*" required>
                         @error('document_photo')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
