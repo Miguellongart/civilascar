@@ -164,8 +164,7 @@ class UserController extends Controller
         // Sincronizar permisos
         $user->syncPermissions($permissionNames);
 
-        // Redirigir a la vista individual del usuario (show)
-        return redirect()->route('admin.user.show', $user->id)
+        return redirect()->route('admin.users.show', $user->id)
             ->with('success', 'Permisos actualizados con éxito');
     }
 }
