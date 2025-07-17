@@ -361,34 +361,36 @@ class FrontController extends Controller
             'fixturesAway.tournament',
             'tournaments'
         ])->findOrFail($teamId);
-    
-        // Torneo actual activo o más reciente no finalizado
-        $currentTournament = $team->tournaments()
-            ->where('status', true)
-            ->orWhere('end_date', '>=', now())
-            ->latest('start_date')
-            ->first();
-    
+
+        // Torneo actual: status = planned
+        $currentTournament = $team->tournaments->firstWhere('status', 'planned');
+
+        // Reordenar los torneos: primero el que está en 'planned'
+        if ($currentTournament) {
+            $otherTournaments = $team->tournaments->filter(fn($t) => $t->id !== $currentTournament->id);
+            $team->tournaments = collect([$currentTournament])->merge($otherTournaments)->values();
+        }
+
         // Agrupamos los jugadores por torneo
         $playersByTournament = $team->tournaments->mapWithKeys(function ($tournament) use ($team) {
             $players = $team->tournamentPlayers($tournament->id)->with('user')->get();
             return [$tournament->name => $players];
         });
-    
+
         // Partidos (local + visitante), ordenados por fecha
         $allFixtures = $team->fixturesHome->merge($team->fixturesAway)->sortByDesc('match_date');
-    
+
         // Agrupamos los partidos por torneo
         $fixturesByTournament = $allFixtures->groupBy(function ($fixture) {
             return $fixture->tournament->name ?? 'Sin torneo';
         });
-    
+
         // IDs de jugadores del equipo
         $teamIds = [$team->id];
-    
+
         // Goleadores del equipo agrupados por torneo
         $topScorersByTournament = [];
-    
+
         foreach ($team->tournaments as $tournament) {
             $scorers = PlayerFixtureEvent::where('event_type', 'goal')
                 ->whereHas('fixture', function ($q) use ($tournament) {
@@ -403,12 +405,12 @@ class FrontController extends Controller
                 ->orderBy('goals', 'desc')
                 ->with('player.user', 'player.team')
                 ->get();
-    
+
             if ($scorers->isNotEmpty()) {
                 $topScorersByTournament[$tournament->name] = $scorers;
             }
         }
-    
+
         return view('front.team.show', compact(
             'team',
             'playersByTournament',
