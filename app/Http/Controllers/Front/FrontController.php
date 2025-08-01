@@ -217,6 +217,7 @@ class FrontController extends Controller
 
     public function registerTeam(Request $request)
     {
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -225,19 +226,24 @@ class FrontController extends Controller
             'dni' => 'required|string|max:255',
             'email' => 'nullable|email',
             'position' => 'required|string|max:255',
-            'number' => [
-                'required',
-                'numeric',
-                'between:1,99999',
-                Rule::unique('players')->where(function ($query) use ($request) {
-                    return $query->where('team_id', $request->team_id);
-                }),
-            ],
+            'number' => 'required|numeric|between:1,99999',
             'player_photo' => 'nullable|image|max:2048',
             'document_photo' => 'required|image|max:2048',
             'team_id' => 'required|exists:teams,id',
             'tournament_id' => 'required|exists:tournaments,id',
         ]);
+
+        // Verificamos si ya existe un jugador con ese número en ese team + torneo
+        $exists = DB::table('players')
+            ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
+            ->where('players.number', $request->number)
+            ->where('player_team_tournament.team_id', $request->team_id)
+            ->where('player_team_tournament.tournament_id', $request->tournament_id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['number' => 'Este número ya está en uso para este equipo en este torneo.'])->withInput();
+        }
 
         // Concatenar nombre completo para el usuario
         $fullName = $request->first_name . ' ' . $request->last_name;
