@@ -51,7 +51,7 @@
                                 <div id="collapse{{ $tournament->id }}" class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}" aria-labelledby="heading{{ $tournament->id }}" data-bs-parent="#tournamentAccordion">
                                     <div class="accordion-body">
                                         <div class="row">
-                                            <div class="col-6">
+                                            <div class="col-sm-12 col-6">
                                                 <h5 class="mt-2 mb-3 text-primary"><i class="bi bi-person-fill"></i> Plantilla para este Torneo</h5>
                                                 @php
                                                     $playersForThisTournament = $playersByTournament[$tournament->name] ?? collect();
@@ -78,7 +78,7 @@
                                                     </ul>
                                                 @endif
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-sm-12 col-6">
                                                 <h5 class="mt-2 mb-3 text-danger"><i class="bi bi-fire"></i> Goleadores del Equipo en este Torneo</h5>
                                                 @php
                                                     $scorersForThisTournament = $topScorersByTournament[$tournament->name] ?? collect();
