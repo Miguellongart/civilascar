@@ -4,7 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torneos - Mi Liga</title>
+    <title>Liga Cafetera Ascar - Torneo de Fútbol en Buenos Aires</title>
+
+    <meta name="description" content="Liga Cafetera Ascar: Torneo de fútbol amateur en Buenos Aires, Argentina. Compite, disfruta y sigue los resultados, equipos y goleadores de nuestra liga. ¡Únete a la pasión del fútbol!">
+    <meta name="keywords" content="torneo de futbol, liga cafetera, ascar, buenos aires, futbol amateur, liga de futbol, torneo, futbol, argentina, resultados, equipos, goleadores">
+    <meta name="author" content="Ascar">
+
+    <meta property="og:title" content="Liga Cafetera Ascar - ¡El torneo de fútbol en Buenos Aires!">
+    <meta property="og:description" content="Sigue los resultados, equipos y goleadores de nuestra emocionante liga de fútbol amateur en Buenos Aires, Argentina. ¡Únete a la pasión del juego!">
+    <meta property="og:image" content="{{ asset('front/images/ascar.png') }}">
+    <meta property="og:url" content="URL_DE_TU_PAGINA">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_ES">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@TU_USUARIO_DE_TWITTER">
+    <meta name="twitter:creator" content="@TU_USUARIO_DE_TWITTER">
+    <meta name="twitter:title" content="Liga Cafetera Ascar: ¡Fútbol en Buenos Aires!">
+    <meta name="twitter:description" content="Entérate de todo sobre la Liga Cafetera Ascar, el torneo de fútbol amateur en Buenos Aires. Resultados, equipos, y más.">
+    <meta name="twitter:image" content="{{ asset('front/images/ascar.png') }}">
+
+    <link rel="icon" type="image/png" href="{{ asset('front/images/ascar.png') }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ asset('front/images/ascar.png') }}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ asset('front/images/ascar.png') }}" sizes="96x96">
+    <link rel="icon" type="image/png" href="{{ asset('front/images/ascar.png') }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ asset('front/images/ascar.png') }}">
+    <meta name="msapplication-TileImage" content="{{ asset('front/images/ascar.png') }}">
+    <meta name="msapplication-TileColor" content="#ffffff">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

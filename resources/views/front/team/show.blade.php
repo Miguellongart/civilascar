@@ -162,13 +162,19 @@
                 <div class="col-lg-3 sidebar-banners">
                     <h4 class="text-center mb-3 text-secondary">Publicidad</h4>
                     <div class="banner-vertical mb-3">
-                        <img src="{{ asset('front/images/ascar.png') }}" alt="Ascar" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        <a href="https://www.instagram.com/ascar.oficial/" target="_blank" rel="noopener">
+                            <img src="{{ asset('front/images/ascar.png') }}" alt="Ascar" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        </a>
                     </div>
                     <div class="banner-vertical mb-3">
-                        <img src="{{ asset('front/images/callinfinyt.png') }}" alt="Callinfinyt" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        <a href="https://www.instagram.com/calm.infinity/?igsh=MWdicXlyanNnamY1Mw%3D%3D#" target="_blank" rel="noopener">
+                            <img src="{{ asset('front/images/callinfinyt.png') }}" alt="Callinfinyt" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        </a>
                     </div>
                     <div class="banner-vertical mb-3">
-                        <img src="{{ asset('front/images/alambique.png') }}" alt="Alambique" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        <a href="https://www.instagram.com/alambiquebar.arg?igsh=NzIzcnF3aWNhMDBo" target="_blank" rel="noopener">
+                            <img src="{{ asset('front/images/alambique.png') }}" alt="Alambique" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        </a>
                     </div>
                 </div>
             </div>
