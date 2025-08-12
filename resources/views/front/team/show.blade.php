@@ -7,9 +7,19 @@
         @else
             <div class="team-header shadow-sm">
                 @if($team->logo)
-                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $team->name }}" class="team-logo mb-3">
+                    @php
+                        $logoPath = 'storage/' . $team->logo;
+                        $logoExists = file_exists(public_path($logoPath));
+                    @endphp
+
+                    @if($logoExists)
+                        <img src="{{ asset($logoPath) }}" alt="{{ $team->name }}" class="team-logo mb-3">
+                    @else
+                        {{-- Usa una imagen por defecto genérica o el logo de la liga --}}
+                        <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Logo por defecto" class="team-logo mb-3">
+                    @endif
                 @else
-                    {{-- Usa una imagen por defecto genérica o el logo de la liga --}}
+                    {{-- Si el equipo no tiene logo en la base de datos, muestra directamente la imagen por defecto --}}
                     <img src="{{ asset('front/images/liga cafetera.png') }}" alt="Logo por defecto" class="team-logo mb-3">
                 @endif
                 <h1 class="display-4 mb-1 text-primary">{{ $team->name }}</h1>

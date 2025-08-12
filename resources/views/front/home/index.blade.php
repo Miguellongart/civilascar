@@ -140,7 +140,16 @@
                                                             <td>{{ $index + 1 }}</td>
                                                             <td>
                                                                 @if($position->team)
-                                                                    <img src="{{ asset('front/images/liga cafetera.png') }}" alt="{{ $position->team->name }}" width="20" height="20" class="me-2 rounded-circle">
+                                                                    @php
+                                                                        // Define la ruta a la imagen del logo del equipo
+                                                                        $logoPath = $position->team->logo ? 'storage/' . $position->team->logo : null;
+                                                                        // Verifica si la imagen existe en la ruta pública
+                                                                        $logoExists = $logoPath && file_exists(public_path($logoPath));
+                                                                    @endphp
+                                                                    
+                                                                    <img src="{{ $logoExists ? asset($logoPath) : asset('front/images/liga cafetera.png') }}" 
+                                                                        alt="{{ $position->team->name }}" width="20" height="20" class="me-2 rounded-circle">
+                                                                    
                                                                     <a href="{{ route('front.team.show', ['teamId' => $position->team->id]) }}" class="text-decoration-none text-dark">
                                                                         {{ $position->team->name }}
                                                                     </a>

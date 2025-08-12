@@ -56,7 +56,8 @@ class TeamController extends Controller
                 }
     
                 if (auth()->user()->can('admin.team.show') && $firstTournament) {
-                    $btnDetails = '<a href="' . route('admin.team.show', ['idTeam' => $team->id, 'idTournament' => $firstTournament->id]) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+                    // Corrección para la ruta 'admin.team.show'
+                    $btnDetails = '<a href="' . route('admin.team.show', $team->id) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>';
                 }
