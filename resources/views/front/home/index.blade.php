@@ -281,6 +281,11 @@
                             <img src="{{ asset('front/images/alambique.png') }}" alt="Alambique" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                         </a>
                     </div>
+                    <div class="banner-vertical mb-3">
+                        <a href="https://www.instagram.com/red9envios?igsh=MXhtb3RuNWx0cTh6Zg==" target="_blank" rel="noopener">
+                            <img src="{{ asset('front/images/red9.png') }}" alt="Alambique" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
+                        </a>
+                    </div>
                 </div>
             </div>
 
