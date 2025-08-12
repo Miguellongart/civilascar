@@ -161,14 +161,14 @@
 
                 <div class="col-lg-3 sidebar-banners">
                     <h4 class="text-center mb-3 text-secondary">Publicidad</h4>
-                    <div class="banner-vertical">
-                        <p>Banner Vertical (300x250px o similar)</p>
+                    <div class="banner-vertical mb-3">
+                        <img src="{{ asset('front/images/ascar.png') }}" alt="Ascar" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                     </div>
-                    <div class="banner-vertical">
-                        <p>Banner Vertical (300x250px o similar)</p>
+                    <div class="banner-vertical mb-3">
+                        <img src="{{ asset('front/images/callinfinyt.png') }}" alt="Callinfinyt" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                     </div>
-                    <div class="banner-vertical">
-                        <p>Banner Vertical (300x250px o similar)</p>
+                    <div class="banner-vertical mb-3">
+                        <img src="{{ asset('front/images/alambique.png') }}" alt="Alambique" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                     </div>
                 </div>
             </div>

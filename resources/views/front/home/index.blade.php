@@ -135,7 +135,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach($currentTournament->positionTables as $index => $position)
+                                                    @foreach($currentTournament->positionTables->sortByDesc('points')->values() as $index => $position)
                                                         <tr>
                                                             <td>{{ $index + 1 }}</td>
                                                             <td>
@@ -148,10 +148,10 @@
                                                                     Equipo Desconocido
                                                                 @endif
                                                             </td>
-                                                            <td>{{ $position->matches_played ?? 0 }}</td>
-                                                            <td>{{ $position->wins ?? 0 }}</td>
-                                                            <td>{{ $position->draws ?? 0 }}</td>
-                                                            <td>{{ $position->losses ?? 0 }}</td>
+                                                            <td>{{ $position->played ?? 0 }}</td>
+                                                            <td>{{ $position->won ?? 0 }}</td>
+                                                            <td>{{ $position->drawn ?? 0 }}</td>
+                                                            <td>{{ $position->lost ?? 0 }}</td>
                                                             <td>{{ $position->goals_for ?? 0 }}</td>
                                                             <td>{{ $position->goals_against ?? 0 }}</td>
                                                             <td>{{ $position->goal_difference ?? 0 }}</td>
@@ -257,14 +257,14 @@
 
                 <div class="col-lg-3 sidebar-banners">
                     <span class="text-center mb-3 text-secondary">Publicidad</span>
-                    <div class="banner-vertical">
-                        <p>Banner Vertical (300x250px o similar)</p>
+                    <div class="banner-vertical mb-3">
+                        <img src="{{ asset('front/images/ascar.png') }}" alt="Ascar" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                     </div>
-                    <div class="banner-vertical">
-                        <p>Banner Vertical (300x250px o similar)</p>
+                    <div class="banner-vertical mb-3">
+                        <img src="{{ asset('front/images/callinfinyt.png') }}" alt="Callinfinyt" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                     </div>
-                    <div class="banner-vertical">
-                        <p>Banner Vertical (300x250px o similar)</p>
+                    <div class="banner-vertical mb-3">
+                        <img src="{{ asset('front/images/alambique.png') }}" alt="Alambique" class="img-fluid" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 6/5; object-fit: contain;">
                     </div>
                 </div>
             </div>

@@ -39,10 +39,9 @@
         .banner-horizontal {
             width: 100%;
             height: 100px;
-            /* Altura sugerida para banners horizontales */
-            background-color: #e0f2f7;
-            /* Un color claro para diferenciar */
-            border: 1px dashed #90caf9;
+            background-color: #252525;
+            border: 1px dashed #fdba00;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -50,18 +49,15 @@
             font-size: 1.2rem;
             color: #424242;
             margin-bottom: 30px;
-            /* Espacio debajo del banner */
             overflow: hidden;
-            /* Asegura que el contenido del banner no se desborde */
         }
 
         .banner-vertical {
             width: 100%;
             height: 300px;
-            /* Altura sugerida para banners verticales en un sidebar */
-            background-color: #e0f7fa;
-            /* Otro color para diferenciar */
-            border: 1px dashed #80deea;
+            background-color: #252525;
+            border: 1px dashed #fdba00;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
