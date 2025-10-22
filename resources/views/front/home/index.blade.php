@@ -12,9 +12,8 @@
                 No hay torneos planificados disponibles en este momento.
             </div>
         @else
-            <div class="banner-horizontal mb-4">
-                <p>Espacio para Banner Horizontal Superior (970x90px o similar)</p>
-            </div>
+            {{-- Banner Horizontal Superior - Google AdSense --}}
+            <x-adsense slot="auto" format="horizontal" style="min-height: 90px; margin-bottom: 1.5rem;" />
 
             <div class="filter-section shadow-sm">
                 <h3 class="mb-3 text-info"><i class="bi bi-funnel-fill"></i> Filtrar Torneo y Fecha</h3>
@@ -61,7 +60,7 @@
             <div class="row mt-5">
                 <div class="col-lg-9 main-content">
                     <div class="row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-12 mb-4">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-primary text-white">
                                     <span class="mb-0 fw-bold">
@@ -76,30 +75,63 @@
                                     @if($fixtures->isEmpty())
                                         <div class="alert alert-warning text-center" role="alert">
                                             @if($filterDate)
-                                                No hay partidos programados para esta fecha en el torneo actual.
+                                                <i class="bi bi-info-circle"></i> No hay partidos programados para esta fecha en el torneo actual.
                                             @else
-                                                No hay partidos registrados para este torneo.
+                                                <i class="bi bi-info-circle"></i> No hay partidos registrados para este torneo.
                                             @endif
                                         </div>
                                     @else
-                                        <div class="list-group">
+                                        <div class="row">
                                             @foreach($fixtures as $fixture)
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div class="text-center flex-grow-1"> {{-- Added text-center and flex-grow-1 here --}}
-                                                        <h6 class="mb-0"> {{-- Changed h5 to h6 for smaller font --}}
-                                                            <strong>{{ $fixture->homeTeam->name ?? 'Equipo Local' }}</strong> vs <strong>{{ $fixture->awayTeam->name ?? 'Equipo Visitante' }}</strong>
-                                                        </h6>
-                                                        <small class="text-muted d-block mb-1"> {{-- Added d-block and mb-1 for new line and spacing --}}
-                                                            <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($fixture->match_date)->format('H:i') }}
-                                                        </small>
-                                                        <span class="badge {{ $fixture->status == 'completed' ? 'bg-success' : ($fixture->status == 'scheduled' ? 'bg-info' : 'bg-secondary') }}">
-                                                            {{ ucfirst($fixture->status) }}
-                                                        </span>
+                                                <div class="col-md-6 col-lg-4 mb-3">
+                                                    <div class="fixture-card">
+                                                        <div class="fixture-header">
+                                                            <small class="text-muted">
+                                                                <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($fixture->match_date)->format('H:i') }}
+                                                            </small>
+                                                            <span class="badge {{ $fixture->status == 'completed' ? 'bg-success' : ($fixture->status == 'scheduled' ? 'bg-info' : 'bg-secondary') }}">
+                                                                {{ $fixture->status == 'completed' ? 'Finalizado' : ($fixture->status == 'scheduled' ? 'Programado' : ucfirst($fixture->status)) }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="fixture-body text-center">
+                                                            <div class="d-flex justify-content-center align-items-center mb-3">
+                                                                <div class="text-center mx-2 flex-fill">
+                                                                    @php
+                                                                        $homeLogoPath = $fixture->homeTeam->logo ? 'storage/' . $fixture->homeTeam->logo : null;
+                                                                        $homeLogoExists = $homeLogoPath && file_exists(public_path($homeLogoPath));
+                                                                    @endphp
+                                                                    <img src="{{ $homeLogoExists ? asset($homeLogoPath) : asset('front/images/liga cafetera.png') }}"
+                                                                         alt="{{ $fixture->homeTeam->name ?? 'Local' }}"
+                                                                         width="50"
+                                                                         height="50"
+                                                                         class="rounded-circle mb-2"
+                                                                         style="object-fit: cover; border: 3px solid #667eea;">
+                                                                    <p class="mb-0 team-name-small"><strong>{{ $fixture->homeTeam->name ?? 'Local' }}</strong></p>
+                                                                </div>
+
+                                                                @if($fixture->status == 'completed')
+                                                                    <div class="score mx-2">{{ $fixture->home_team_score }} - {{ $fixture->away_team_score }}</div>
+                                                                @else
+                                                                    <span class="team-vs mx-2">VS</span>
+                                                                @endif
+
+                                                                <div class="text-center mx-2 flex-fill">
+                                                                    @php
+                                                                        $awayLogoPath = $fixture->awayTeam->logo ? 'storage/' . $fixture->awayTeam->logo : null;
+                                                                        $awayLogoExists = $awayLogoPath && file_exists(public_path($awayLogoPath));
+                                                                    @endphp
+                                                                    <img src="{{ $awayLogoExists ? asset($awayLogoPath) : asset('front/images/liga cafetera.png') }}"
+                                                                         alt="{{ $fixture->awayTeam->name ?? 'Visitante' }}"
+                                                                         width="50"
+                                                                         height="50"
+                                                                         class="rounded-circle mb-2"
+                                                                         style="object-fit: cover; border: 3px solid #667eea;">
+                                                                    <p class="mb-0 team-name-small"><strong>{{ $fixture->awayTeam->name ?? 'Visitante' }}</strong></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    @if($fixture->status == 'completed')
-                                                        <span class="badge bg-dark fs-5 ms-3">{{ $fixture->home_team_score }} - {{ $fixture->away_team_score }}</span> {{-- Added ms-3 for margin --}}
-                                                    @endif
-                                                </li>
+                                                </div>
                                             @endforeach
                                         </div>
                                     @endif
@@ -107,7 +139,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-8">
+                        <div class="col-lg-12">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-success text-white">
                                     <span class="mb-0"><i class="bi bi-trophy-fill"></i> Tabla de Posiciones</span>
@@ -115,56 +147,76 @@
                                 <div class="card-body">
                                     @if($currentTournament->positionTables->isEmpty())
                                         <div class="alert alert-info text-center" role="alert">
-                                            La tabla de posiciones aún no está disponible para este torneo.
+                                            <i class="bi bi-info-circle"></i> La tabla de posiciones aún no está disponible para este torneo.
                                         </div>
                                     @else
                                         <div class="table-responsive">
-                                            <table class="table table-striped table-hover table-sm">
+                                            <table class="table table-hover">
                                                 <thead class="table-dark">
                                                     <tr>
-                                                        <th scope="col">#</th>
+                                                        <th scope="col" class="text-center" style="width: 50px;">#</th>
                                                         <th scope="col">Equipo</th>
-                                                        <th scope="col">PJ</th>
-                                                        <th scope="col">PG</th>
-                                                        <th scope="col">PE</th>
-                                                        <th scope="col">PP</th>
-                                                        <th scope="col">GF</th>
-                                                        <th scope="col">GC</th>
-                                                        <th scope="col">DG</th>
-                                                        <th scope="col">Pts</th>
+                                                        <th scope="col" class="text-center">PJ</th>
+                                                        <th scope="col" class="text-center">PG</th>
+                                                        <th scope="col" class="text-center">PE</th>
+                                                        <th scope="col" class="text-center">PP</th>
+                                                        <th scope="col" class="text-center">GF</th>
+                                                        <th scope="col" class="text-center">GC</th>
+                                                        <th scope="col" class="text-center">DG</th>
+                                                        <th scope="col" class="text-center"><strong>Pts</strong></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach($currentTournament->positionTables->sortByDesc('points')->values() as $index => $position)
-                                                        <tr>
-                                                            <td>{{ $index + 1 }}</td>
+                                                        <tr style="{{ $index < 3 ? 'background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(255, 255, 255, 1) 100%);' : '' }}">
+                                                            <td class="text-center">
+                                                                @if($index === 0)
+                                                                    <span style="font-size: 1.5rem;">🥇</span>
+                                                                @elseif($index === 1)
+                                                                    <span style="font-size: 1.5rem;">🥈</span>
+                                                                @elseif($index === 2)
+                                                                    <span style="font-size: 1.5rem;">🥉</span>
+                                                                @else
+                                                                    <strong>{{ $index + 1 }}</strong>
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 @if($position->team)
                                                                     @php
-                                                                        // Define la ruta a la imagen del logo del equipo
                                                                         $logoPath = $position->team->logo ? 'storage/' . $position->team->logo : null;
-                                                                        // Verifica si la imagen existe en la ruta pública
                                                                         $logoExists = $logoPath && file_exists(public_path($logoPath));
                                                                     @endphp
-                                                                    
-                                                                    <img src="{{ $logoExists ? asset($logoPath) : asset('front/images/liga cafetera.png') }}" 
-                                                                        alt="{{ $position->team->name }}" width="20" height="20" class="me-2 rounded-circle">
-                                                                    
-                                                                    <a href="{{ route('front.team.show', ['teamId' => $position->team->id]) }}" class="text-decoration-none text-dark">
+
+                                                                    <img src="{{ $logoExists ? asset($logoPath) : asset('front/images/liga cafetera.png') }}"
+                                                                        alt="{{ $position->team->name }}"
+                                                                        width="30"
+                                                                        height="30"
+                                                                        class="me-2 rounded-circle"
+                                                                        style="object-fit: cover; border: 2px solid #667eea;">
+
+                                                                    <a href="{{ route('front.team.show', ['teamId' => $position->team->id]) }}"
+                                                                       class="text-decoration-none fw-bold"
+                                                                       style="color: #2c3e50;">
                                                                         {{ $position->team->name }}
                                                                     </a>
                                                                 @else
                                                                     Equipo Desconocido
                                                                 @endif
                                                             </td>
-                                                            <td>{{ $position->played ?? 0 }}</td>
-                                                            <td>{{ $position->won ?? 0 }}</td>
-                                                            <td>{{ $position->drawn ?? 0 }}</td>
-                                                            <td>{{ $position->lost ?? 0 }}</td>
-                                                            <td>{{ $position->goals_for ?? 0 }}</td>
-                                                            <td>{{ $position->goals_against ?? 0 }}</td>
-                                                            <td>{{ $position->goal_difference ?? 0 }}</td>
-                                                            <td><strong>{{ $position->points ?? 0 }}</strong></td>
+                                                            <td class="text-center">{{ $position->played ?? 0 }}</td>
+                                                            <td class="text-center text-success fw-bold">{{ $position->won ?? 0 }}</td>
+                                                            <td class="text-center text-secondary">{{ $position->drawn ?? 0 }}</td>
+                                                            <td class="text-center text-danger">{{ $position->lost ?? 0 }}</td>
+                                                            <td class="text-center">{{ $position->goals_for ?? 0 }}</td>
+                                                            <td class="text-center">{{ $position->goals_against ?? 0 }}</td>
+                                                            <td class="text-center {{ ($position->goal_difference ?? 0) > 0 ? 'text-success' : (($position->goal_difference ?? 0) < 0 ? 'text-danger' : '') }}">
+                                                                {{ ($position->goal_difference ?? 0) > 0 ? '+' : '' }}{{ $position->goal_difference ?? 0 }}
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-primary" style="font-size: 1rem; min-width: 40px;">
+                                                                    {{ $position->points ?? 0 }}
+                                                                </span>
+                                                            </td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -176,8 +228,9 @@
                         </div>
                     </div>
 
-                    <div class="banner-horizontal mt-5 mb-5">
-                        <p>Espacio para Banner Horizontal Medio (728x90px o similar)</p>
+                    {{-- Banner Horizontal Medio - Google AdSense --}}
+                    <div class="mt-5 mb-5">
+                        <x-adsense slot="auto" format="horizontal" style="min-height: 90px;" />
                     </div>
 
                     <div class="row mt-3">
@@ -289,8 +342,9 @@
                 </div>
             </div>
 
-            <div class="banner-horizontal mt-5">
-                <p>Espacio para Banner Horizontal Inferior (970x90px o similar)</p>
+            {{-- Banner Horizontal Inferior - Google AdSense --}}
+            <div class="mt-5">
+                <x-adsense slot="auto" format="horizontal" style="min-height: 90px;" />
             </div>
         @endif
     </div>

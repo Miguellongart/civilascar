@@ -7,15 +7,25 @@
 @section('content')
     <x-adminlte-card theme="lime" theme-mode="outline">
         @if (session('success'))
-            <x-adminlte-callout theme="success" title="Success">
+            <x-adminlte-callout theme="success" title="Éxito">
                 {{ session('success') }}
             </x-adminlte-callout>
         @endif
+        @if (session('error'))
+            <x-adminlte-callout theme="danger" title="Error">
+                {{ session('error') }}
+            </x-adminlte-callout>
+        @endif
         <x-adminlte-card>
-            <a href="{{ route('admin.team.create') }}" class="btn-sm btn-success">
-                <i class="fas fa-plus"></i> Crear
-            </a>
-            <x-adminlte-datatable id="table1" :heads="$heads">
+            <div class="mb-3">
+                <a href="{{ route('admin.team.create') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Crear Nuevo Equipo
+                </a>
+                <a href="{{ route('admin.tournament.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-trophy"></i> Gestionar Torneos
+                </a>
+            </div>
+            <x-adminlte-datatable id="table1" :heads="$heads" :config="$config" striped hoverable bordered compressed beautify>
                 @foreach($config['data'] as $row)
                     <tr>
                         @foreach($row as $cell)

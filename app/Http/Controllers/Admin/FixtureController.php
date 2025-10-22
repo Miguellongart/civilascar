@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Events\FixtureUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Fixture;
 use App\Models\Player;
@@ -11,6 +10,7 @@ use App\Models\PositionTable;
 use App\Models\Tournament;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FixtureController extends Controller
 {
@@ -19,11 +19,15 @@ class FixtureController extends Controller
      */
     public function index(Request $request, $tournamentId)
     {
-        $tournament = Tournament::findOrFail($tournamentId);
-        $subtitle = 'Fixture';
+        $tournament = Tournament::with('teams')->findOrFail($tournamentId);
+        $subtitle = 'Partidos del Torneo: ' . $tournament->name;
         $content_header_title = 'Dashboard';
-        $content_header_subtitle = 'Listado de Fixture';
+        $content_header_subtitle = 'Listado de Partidos';
 
+        // Obtener el modo de visualización (date o round)
+        $viewMode = $request->get('view_mode', 'round'); // Por defecto: round
+
+        // Obtener todas las fechas disponibles
         $dates = Fixture::where('tournament_id', $tournamentId)
             ->selectRaw('DATE(match_date) as match_date')
             ->distinct()
@@ -31,22 +35,90 @@ class FixtureController extends Controller
             ->get()
             ->pluck('match_date');
 
-        // Determinar la siguiente fecha disponible
-        $nextDate = $dates->firstWhere(function ($date) {
-            return $date >= now()->format('Y-m-d');
-        });
+        // Obtener todas las rondas disponibles
+        $rounds = Fixture::where('tournament_id', $tournamentId)
+            ->select('round')
+            ->distinct()
+            ->orderBy('round')
+            ->get()
+            ->pluck('round');
 
-        $selectedDate = $request->get('date', $nextDate);
+        // Determinar la jornada/ronda actual (la más cercana a hoy o la primera sin completar)
+        $currentRound = null;
+        if ($rounds->isNotEmpty()) {
+            // Buscar la primera ronda con al menos un partido no completado
+            $currentRound = Fixture::where('tournament_id', $tournamentId)
+                ->where('status', '!=', 'completed')
+                ->orderBy('round')
+                ->value('round');
 
-        $query = Fixture::with(['homeTeam', 'awayTeam'])->where('tournament_id', $tournamentId);
+            // Si todos los partidos están completados, usar la última ronda
+            if (!$currentRound) {
+                $currentRound = $rounds->last();
+            }
+        }
 
+        // Filtros
+        $selectedDate = $request->get('date');
+        $selectedRound = $request->get('round');
+
+        // Si no hay filtros aplicados y estamos en modo round, usar la ronda actual
+        if (!$selectedDate && !$selectedRound && $viewMode === 'round' && $currentRound) {
+            $selectedRound = $currentRound;
+        }
+
+        // Query base
+        $query = Fixture::with(['homeTeam', 'awayTeam', 'playerEvents.player.user'])
+            ->where('tournament_id', $tournamentId);
+
+        // Aplicar filtros
         if ($selectedDate) {
             $query->whereDate('match_date', $selectedDate);
         }
 
-        $fixtures = $query->get();
+        if ($selectedRound) {
+            $query->where('round', $selectedRound);
+        }
 
-        return view('admin.fixture.index', compact('subtitle', 'content_header_title', 'content_header_subtitle', 'fixtures', 'tournament', 'dates', 'selectedDate'));
+        // Ordenar por fecha y hora
+        $fixtures = $query->orderBy('match_date')->orderBy('round')->get();
+
+        // Agrupar fixtures
+        if ($viewMode === 'date') {
+            // Agrupar por fecha
+            $groupedFixtures = $fixtures->groupBy(function ($fixture) {
+                return Carbon::parse($fixture->match_date)->format('Y-m-d');
+            });
+        } else {
+            // Agrupar por ronda
+            $groupedFixtures = $fixtures->groupBy('round');
+        }
+
+        // Estadísticas del torneo
+        $stats = [
+            'total_fixtures' => Fixture::where('tournament_id', $tournamentId)->count(),
+            'completed' => Fixture::where('tournament_id', $tournamentId)->where('status', 'completed')->count(),
+            'scheduled' => Fixture::where('tournament_id', $tournamentId)->where('status', 'scheduled')->count(),
+            'total_goals' => Fixture::where('tournament_id', $tournamentId)
+                ->where('status', 'completed')
+                ->sum(\DB::raw('home_team_score + away_team_score')),
+        ];
+
+        return view('admin.fixture.index', compact(
+            'subtitle',
+            'content_header_title',
+            'content_header_subtitle',
+            'fixtures',
+            'groupedFixtures',
+            'tournament',
+            'dates',
+            'rounds',
+            'selectedDate',
+            'selectedRound',
+            'currentRound',
+            'viewMode',
+            'stats'
+        ));
     }
 
     public function edit($id)
@@ -103,7 +175,7 @@ class FixtureController extends Controller
 
         // Actualizar eventos existentes y agregar nuevos eventos
         if ($request->has('player_events')) {
-            foreach ($request->player_events as $eventId => $eventData) {
+            foreach ($request->player_events as $eventData) {
                 // Asegurar que 'minute' siempre tenga un valor
                 if (!isset($eventData['minute']) || $eventData['minute'] === null) {
                     $eventData['minute'] = 0;

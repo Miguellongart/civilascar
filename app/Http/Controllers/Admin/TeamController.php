@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class TeamController extends Controller
@@ -23,64 +22,71 @@ class TeamController extends Controller
         $heads = [
             'ID',
             ['label' => 'Nombre', 'width' => 20],
-            ['label' => 'Entrenador', 'width' => 20],
-            ['label' => 'Estadio', 'width' => 20],
-            ['label' => 'Logo', 'width' => 20],
+            ['label' => 'Entrenador', 'width' => 15],
+            ['label' => 'Estadio', 'width' => 15],
+            ['label' => 'Torneos', 'width' => 15],
+            ['label' => 'Logo', 'width' => 15],
             ['label' => 'Acciones', 'no-export' => true, 'width' => 20],
         ];
-    
-        $teams = Team::with('tournaments')->get(); // Asegúrate de tener esta relación definida en tu modelo Team
-    
+
+        $teams = Team::withCount('tournaments')->with('tournaments')->get();
+
         $config = [
             'data' => $teams->map(function($team) {
                 $btnEdit = '';
                 $btnDelete = '';
                 $btnDetails = '';
-    
-                // Obtener el primer torneo asociado al equipo (puedes ajustar si deseas otro criterio)
-                $firstTournament = $team->tournaments->first();
-    
+
                 if (auth()->user()->can('admin.team.edit')) {
-                    $btnEdit = '<a href="' . route('admin.team.edit', $team) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Edit">
+                    $btnEdit = '<a href="' . route('admin.team.edit', $team) . '" class="btn btn-sm btn-primary mx-1 shadow" title="Editar">
                                     <i class="fa fa-lg fa-fw fa-pen"></i>
                                 </a>';
                 }
-    
+
                 if (auth()->user()->can('admin.team.destroy')) {
                     $btnDelete = '<form method="POST" action="' . route('admin.team.destroy', $team) . '" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Delete" onclick="return confirm(\'¿Estás seguro?\')">
+                                <button type="submit" class="btn btn-xs btn-default text-danger mx-1 shadow" title="Eliminar" onclick="return confirm(\'¿Estás seguro?\')">
                                     <i class="fa fa-lg fa-fw fa-trash"></i>
                                 </button>
                             </form>';
                 }
-    
-                if (auth()->user()->can('admin.team.show') && $firstTournament) {
-                    // Corrección para la ruta 'admin.team.show'
-                    $btnDetails = '<a href="' . route('admin.team.show', $team->id) . '" class="btn btn-xs btn-default text-teal mx-1 shadow" title="Details">
+
+                if (auth()->user()->can('admin.team.show')) {
+                    $btnDetails = '<a href="' . route('admin.team.show', $team->id) . '" class="btn btn-xs btn-default text-info mx-1 shadow" title="Ver Detalles">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>';
                 }
-    
-                $logo = $team->logo ? '<img src="' . asset('storage/' . $team->logo) . '" alt="Logo" height="50">' : 'No logo';
-    
+
+                $logo = $team->logo ? '<img src="' . asset('storage/' . $team->logo) . '" alt="Logo" height="50" class="rounded-circle" style="object-fit: cover;">' : '<span class="badge badge-secondary">Sin logo</span>';
+
+                // Mostrar torneos asociados
+                $tournamentsInfo = '';
+                if ($team->tournaments_count > 0) {
+                    $tournamentNames = $team->tournaments->take(2)->pluck('name')->implode(', ');
+                    $tournamentsInfo = '<span class="badge badge-info">' . $team->tournaments_count . ' torneos</span><br><small>' . $tournamentNames . ($team->tournaments_count > 2 ? '...' : '') . '</small>';
+                } else {
+                    $tournamentsInfo = '<span class="badge badge-warning">Sin torneos</span>';
+                }
+
                 return [
                     $team->id,
-                    $team->name,
-                    $team->coach,
-                    $team->home_stadium,
+                    '<strong>' . $team->name . '</strong>',
+                    $team->coach ?? '<span class="text-muted">Sin entrenador</span>',
+                    $team->home_stadium ?? '<span class="text-muted">Sin estadio</span>',
+                    $tournamentsInfo,
                     $logo,
                     '<nobr>' . $btnEdit . $btnDelete . $btnDetails . '</nobr>'
                 ];
             })->toArray(),
             'order' => [[1, 'asc']],
-            'columns' => [null, null, null, null, null, ['orderable' => false]],
+            'columns' => [null, null, null, null, null, null, ['orderable' => false]],
         ];
-    
+
         $subtitle = 'Listado de Equipos';
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Listado de Equipos';
-    
+
         return view('admin.team.index', compact('heads', 'config', 'subtitle', 'content_header_title', 'content_header_subtitle'));
     }
 
@@ -131,31 +137,50 @@ class TeamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $idTeam, string $idTournament)
+    public function show(Request $request, string $idTeam)
     {
-        // Obtener el equipo
-        $team = Team::findOrFail($idTeam);
+        // Obtener el equipo con sus relaciones
+        $team = Team::with(['tournaments', 'players.user'])->findOrFail($idTeam);
         $allTeams = Team::all();
         $allTournaments = Tournament::all();
-    
-        // Consulta para obtener los jugadores asociados al equipo y torneo especificado
-        $players = Player::select('players.*')
-            ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
-            ->where('player_team_tournament.team_id', $idTeam)
-            ->where('player_team_tournament.tournament_id', $idTournament)
-            ->with('user') // Si necesitas cargar la relación "user" del jugador
-            ->get();
-    
+
+        // Determinar el torneo a mostrar
+        $idTournament = $request->get('tournament_id');
+
+        // Si no viene torneo, intentar usar el primer torneo del equipo
+        if (!$idTournament && $team->tournaments->isNotEmpty()) {
+            $idTournament = $team->tournaments->first()->id;
+        }
+
+        // Obtener jugadores según el torneo seleccionado
+        $players = collect();
+        if ($idTournament) {
+            $players = Player::select('players.*')
+                ->join('player_team_tournament', 'players.id', '=', 'player_team_tournament.player_id')
+                ->where('player_team_tournament.team_id', $idTeam)
+                ->where('player_team_tournament.tournament_id', $idTournament)
+                ->with('user')
+                ->get();
+        }
+
+        // Estadísticas del equipo
+        $stats = [
+            'total_tournaments' => $team->tournaments->count(),
+            'total_players' => $players->count(),
+            'total_fixtures' => $team->fixturesHome->count() + $team->fixturesAway->count(),
+        ];
+
         $subtitle = 'Información del Equipo: ' . $team->name;
         $content_header_title = 'Dashboard';
         $content_header_subtitle = 'Información del Equipo: ' . $team->name;
-    
+
         return view('admin.team.show', compact(
             'team',
             'players',
             'allTeams',
             'allTournaments',
             'idTournament',
+            'stats',
             'subtitle',
             'content_header_title',
             'content_header_subtitle'

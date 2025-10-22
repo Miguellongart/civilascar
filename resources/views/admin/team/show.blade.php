@@ -7,7 +7,66 @@
 
 @section('content_body')
     <x-adminlte-card theme="lime" theme-mode="outline">
-        <x-adminlte-card>
+        {{-- Estadísticas del equipo --}}
+        <div class="row mb-4">
+            <div class="col-lg-4 col-6">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fas fa-trophy"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Torneos Participando</span>
+                        <span class="info-box-number">{{ $stats['total_tournaments'] }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-6">
+                <div class="info-box">
+                    <span class="info-box-icon bg-success"><i class="fas fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Jugadores Registrados</span>
+                        <span class="info-box-number">{{ $stats['total_players'] }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-6">
+                <div class="info-box">
+                    <span class="info-box-icon bg-warning"><i class="fas fa-calendar-alt"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total de Partidos</span>
+                        <span class="info-box-number">{{ $stats['total_fixtures'] }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Selector de Torneo --}}
+        @if($team->tournaments->isNotEmpty())
+        <x-adminlte-card theme="primary" title="Seleccionar Torneo" icon="fas fa-filter" collapsible>
+            <form action="{{ route('admin.team.show', $team->id) }}" method="GET" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="tournament_id" class="mr-2">Torneo:</label>
+                    <select name="tournament_id" id="tournament_id" class="form-control" onchange="this.form.submit()">
+                        @foreach($team->tournaments as $tournament)
+                            <option value="{{ $tournament->id }}" {{ $idTournament == $tournament->id ? 'selected' : '' }}>
+                                {{ $tournament->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sync"></i> Actualizar
+                </button>
+            </form>
+        </x-adminlte-card>
+        @else
+        <x-adminlte-callout theme="warning" title="Sin Torneos">
+            Este equipo no está asociado a ningún torneo todavía.
+            <a href="{{ route('admin.tournament.index') }}" class="btn btn-sm btn-primary mt-2">
+                <i class="fas fa-plus"></i> Agregar a un Torneo
+            </a>
+        </x-adminlte-callout>
+        @endif
+
+        <x-adminlte-card title="Información General" theme="success" icon="fas fa-info-circle">
             <div class="row">
                 <div class="col-md-4">
                     <x-adminlte-profile-widget name="{{ $team->name }}" desc="{{ $team->description }}" theme="teal" img="{{ asset('front/images/liga cafetera.png') }}">
@@ -51,11 +110,29 @@
                             </x-slot>
                         </x-adminlte-input>
                     </div>
+
+                    {{-- Botones de acción --}}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <a href="{{ route('admin.team.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver al Listado
+                            </a>
+                            <a href="{{ route('admin.team.edit', $team) }}" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Editar Equipo
+                            </a>
+                            @if($idTournament)
+                            <a href="{{ route('admin.fixture.index', $idTournament) }}" class="btn btn-info">
+                                <i class="fas fa-calendar-alt"></i> Ver Partidos del Torneo
+                            </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
         </x-adminlte-card>
-        
-        <x-adminlte-card theme="info" theme-mode="outline" title="Jugadores del Equipo">
+
+        @if($idTournament)
+        <x-adminlte-card theme="info" theme-mode="outline" title="Jugadores del Equipo ({{ $players->count() }})">
             <table id="playersTable" class="table table-striped">
                 <thead>
                     <tr>
@@ -165,6 +242,11 @@
                 </tbody>
             </table>
         </x-adminlte-card>
+        @else
+        <x-adminlte-callout theme="info" title="Información">
+            Selecciona un torneo para ver los jugadores registrados en ese torneo.
+        </x-adminlte-callout>
+        @endif
     </x-adminlte-card>
 @stop
 
